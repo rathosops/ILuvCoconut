@@ -14,6 +14,10 @@ coverage
 **/coverage
 *.tsbuildinfo
 **/*.tsbuildinfo
+apps/*/*.js
+apps/*/*.js.map
+apps/*/*.d.ts
+apps/*/*.d.ts.map
 
 .env
 .env.*
@@ -23,6 +27,7 @@ apps/player-cocos/library
 apps/player-cocos/temp
 apps/player-cocos/build
 apps/player-cocos/local
+apps/coconut-studio/src-tauri/target
 
 npm-debug.log*
 pnpm-debug.log*

@@ -15,15 +15,18 @@ pnpm typecheck
 pnpm lint
 pnpm validate
 pnpm dev:pixi
+pnpm dev:studio
 ```
 
 ## Desenvolvimento com Docker
 
 ```bash
 docker compose up player-pixi
+docker compose up studio
 ```
 
 O player Pixi fica disponível em `http://localhost:3000`.
+O Coconut Studio fica disponível em `http://localhost:3002`.
 
 Comandos úteis:
 
@@ -40,6 +43,7 @@ O Compose usa bind mount do código e volumes nomeados para `node_modules`, o qu
 
 ```txt
 apps/player-pixi      Player web principal com Vite + PixiJS
+apps/coconut-studio   Interface web/local para montar slots e tratar assets
 apps/player-cocos     Ponto de integração Cocos Creator
 packages/*            Core, contratos, render API, renderers, CLI e pipeline
 games/fruit-classic   Jogo de exemplo
@@ -54,6 +58,7 @@ pnpm lint       # ESLint TypeScript
 pnpm typecheck  # TypeScript project references
 pnpm validate   # valida configs do jogo de exemplo
 pnpm build:pixi # build web oficial Linux-first
+pnpm build:studio # build da interface Studio
 pnpm quality    # typecheck, lint:ci e validate
 pnpm assets:inspect-raw # inspeciona raw-assets local
 pnpm assets:optimize-image <input> <outputDir> <assetId> [width]

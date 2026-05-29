@@ -12,6 +12,10 @@ apps/*/src/*.js
 apps/*/src/*.js.map
 apps/*/src/*.d.ts
 apps/*/src/*.d.ts.map
+apps/*/*.js
+apps/*/*.js.map
+apps/*/*.d.ts
+apps/*/*.d.ts.map
 .DS_Store
 .env
 .env.*
@@ -20,3 +24,4 @@ apps/player-cocos/library/
 apps/player-cocos/temp/
 apps/player-cocos/build/
 apps/player-cocos/local/
+apps/coconut-studio/src-tauri/target/

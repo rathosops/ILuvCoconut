@@ -25,6 +25,22 @@ services:
       - test-tools-node-modules:/workspace/packages/coconut-test-tools/node_modules
     restart: unless-stopped
 
+  studio:
+    build:
+      context: .
+      target: dev
+    command: sh -lc "pnpm install --frozen-lockfile && pnpm dev:studio"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3002:5174"
+    volumes:
+      - .:/workspace
+      - root-node-modules:/workspace/node_modules
+      - studio-node-modules:/workspace/apps/coconut-studio/node_modules
+    restart: unless-stopped
+
   quality:
     build:
       context: .
@@ -44,6 +60,7 @@ services:
 
 volumes:
   root-node-modules:
+  studio-node-modules:
   player-pixi-node-modules:
   asset-pipeline-node-modules:
   cli-node-modules:

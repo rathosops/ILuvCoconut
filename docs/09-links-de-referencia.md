@@ -19,6 +19,12 @@
 - Rust and WebAssembly: https://www.rust-lang.org/what/wasm/
 - wasm-bindgen: https://github.com/rustwasm/wasm-bindgen
 - oxipng: https://github.com/oxipng/oxipng
+- Tauri v2 Architecture: https://v2.tauri.app/concept/architecture/
+- Tauri v2 Prerequisites: https://v2.tauri.app/start/prerequisites/
+- Tauri WebView Versions: https://v2.tauri.app/reference/webview-versions/
+- Tauri Configuration: https://v2.tauri.app/reference/config/
+- WRY WebView library: https://github.com/tauri-apps/wry
+- MDN Pointer Events: https://developer.mozilla.org/docs/Web/API/Pointer_events/Using_Pointer_Events
 - TypeScript TSConfig Reference: https://www.typescriptlang.org/tsconfig/
 - ESLint Configuration Files: https://eslint.org/docs/latest/use/configure/configuration-files
 - typescript-eslint Typed Linting: https://typescript-eslint.io/getting-started/typed-linting/

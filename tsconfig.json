@@ -9,6 +9,7 @@
     { "path": "packages/coconut-asset-pipeline" },
     { "path": "packages/coconut-cli" },
     { "path": "packages/coconut-test-tools" },
-    { "path": "apps/player-pixi" }
+    { "path": "apps/player-pixi" },
+    { "path": "apps/coconut-studio" }
   ]
 }

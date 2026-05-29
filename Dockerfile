@@ -14,6 +14,7 @@ FROM base AS deps
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY apps/player-pixi/package.json apps/player-pixi/package.json
+COPY apps/coconut-studio/package.json apps/coconut-studio/package.json
 COPY apps/player-cocos/extensions/iluvcoconut-cocos-builder/package.json apps/player-cocos/extensions/iluvcoconut-cocos-builder/package.json
 COPY packages/coconut-asset-pipeline/package.json packages/coconut-asset-pipeline/package.json
 COPY packages/coconut-cli/package.json packages/coconut-cli/package.json

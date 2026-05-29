@@ -34,6 +34,7 @@ export default tseslint.config(
         projectService: {
           allowDefaultProject: [
             'apps/player-pixi/vite.config.ts',
+            'apps/coconut-studio/vite.config.ts',
             'apps/player-cocos/assets/scripts/*.ts'
           ]
         },
@@ -73,7 +74,7 @@ export default tseslint.config(
     }
   },
   {
-    files: ['apps/player-pixi/vite.config.ts', 'apps/player-cocos/assets/scripts/*.ts'],
+    files: ['apps/player-pixi/vite.config.ts', 'apps/coconut-studio/vite.config.ts', 'apps/player-cocos/assets/scripts/*.ts'],
     rules: {
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'off'
