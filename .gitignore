@@ -1,5 +1,7 @@
 node_modules/
 raw-assets/
+screenshot-*
+screenshoot-*
 dist/
 build/
 coverage/

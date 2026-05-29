@@ -38,12 +38,15 @@ export class WinPresentationPlanner {
 - Evitar `any`; quando a forma do dado é desconhecida, usar `unknown` e validar.
 - Modelar estados com unions literais em vez de strings soltas.
 - Manter configs serializáveis e independentes de classes.
+- Evitar números mágicos: valores com significado de domínio, layout, performance ou qualidade devem ser constantes nomeadas.
 - Não ignorar erros do TypeScript sem uma justificativa curta e verificável.
 - Rodar `pnpm lint`, `pnpm typecheck` e `pnpm validate` antes de abrir PR.
 
 ## ESLint
 
 A configuração do projeto usa ESLint flat config com regras TypeScript type-aware. A intenção é bloquear problemas de contrato, promises esquecidas, imports de tipo incorretos e funções exportadas sem retorno explícito.
+
+`no-magic-numbers` roda como warning e `lint:ci` falha com warnings. Exceções pequenas como `0`, `1`, `2` e índices de array são permitidas; valores de negócio, dimensões, thresholds, budgets e qualidade devem ter nomes explícitos.
 
 Comandos:
 

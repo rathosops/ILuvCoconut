@@ -1,6 +1,8 @@
 import type { GameConfig, SpinRequest, SpinResult } from '@iluvcoconut/contracts';
 import type { ICoconutRenderer, PresentationCommand, PresentationTimeline } from '@iluvcoconut/renderer-api';
 
+const REEL_SPACING_PX = 170;
+
 export type SlotState =
   | 'boot'
   | 'loading'
@@ -117,7 +119,7 @@ export class SlotRuntime {
         rows: this.config.layout.rows,
         symbolWidth: 160,
         symbolHeight: 160,
-        x: i * 170,
+        x: i * REEL_SPACING_PX,
         y: 0
       });
     }

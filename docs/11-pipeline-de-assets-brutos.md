@@ -54,6 +54,14 @@ A remoção automática de fundo só é confiável para fundos simples, principa
 
 EPS não deve ir para runtime web. Ele deve ser usado como fonte de autoria e exportado para raster antes do pipeline automático.
 
+## Studio e auto-detect
+
+O Coconut Studio possui detecção inicial de figuras no browser usando diferença de cor em relação ao fundo e componentes conectados. Esse caminho é útil para spritesheets como os exemplos de slot em que há vários símbolos sobre uma base visual parecida.
+
+Use o auto-detect para acelerar o trabalho, mas revise visualmente cada frame. Quando o resultado não for bom, volte para grid manual ou ajuste tolerância/área mínima. Para casos mais difíceis, o Studio pode carregar OpenCV.js sob demanda para uma segmentação mais robusta sem aumentar o bundle inicial.
+
+Para recortes de produção, a saída final ainda deve passar pelo pipeline CLI/Tauri e validação de assets.
+
 ## Boas práticas
 
 - Trabalhar com arquivos fonte em alta resolução.

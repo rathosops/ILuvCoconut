@@ -5,12 +5,17 @@ import { PixiCoconutRenderer } from '@iluvcoconut/pixi';
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) throw new Error('Missing #app element');
 
+const DEFAULT_BET_MIN = 0.2;
+const BET_DENOMINATION_HALF = 0.5;
+const BET_DENOMINATION_FIVE = 5;
+const BET_DENOMINATION_TEN = 10;
+
 const config: GameConfig = {
   id: 'fruit-classic',
   title: 'Fruit Classic',
   template: 'slot-5x3-classic',
   layout: { reels: 5, rows: 3, mode: 'paylines' },
-  bet: { default: 1, min: 0.2, max: 100, denominations: [0.2, 0.5, 1, 2, 5, 10] },
+  bet: { default: 1, min: DEFAULT_BET_MIN, max: 100, denominations: [DEFAULT_BET_MIN, BET_DENOMINATION_HALF, 1, 2, BET_DENOMINATION_FIVE, BET_DENOMINATION_TEN] },
   symbols: [
     { id: 'cherry', type: 'regular' },
     { id: 'lemon', type: 'regular' },

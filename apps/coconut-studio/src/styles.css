@@ -36,6 +36,12 @@ button:hover,
   border-color: #39e29d;
 }
 
+button.active {
+  border-color: #39e29d;
+  background: #16362d;
+  color: #bfffe3;
+}
+
 .studio-shell {
   display: grid;
   grid-template-columns: 260px minmax(520px, 1fr) 300px;
@@ -122,6 +128,36 @@ input {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.segmented,
+.tool-row {
+  display: flex;
+  gap: 8px;
+}
+
+.segmented button {
+  flex: 1;
+}
+
+.tool-row {
+  margin-top: 10px;
+}
+
+.tool-row button {
+  flex: 1;
+  padding: 0 8px;
+}
+
+.swatch {
+  margin-top: 10px;
+  min-height: 30px;
+  border: 1px solid #344254;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px #000000;
+  font-size: 12px;
 }
 
 .canvas-stage {

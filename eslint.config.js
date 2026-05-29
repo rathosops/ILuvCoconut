@@ -64,6 +64,16 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_'
         }
       ],
+      'no-magic-numbers': [
+        'warn',
+        {
+          ignore: [-1, 0, 1, 2],
+          ignoreArrayIndexes: true,
+          ignoreDefaultValues: true,
+          ignoreClassFieldInitialValues: true,
+          enforceConst: true
+        }
+      ],
       '@typescript-eslint/restrict-template-expressions': [
         'error',
         {

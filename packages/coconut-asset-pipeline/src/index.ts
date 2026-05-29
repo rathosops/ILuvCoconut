@@ -4,6 +4,8 @@ import sharp from 'sharp';
 import type { CoconutAssetManifest, GameConfig, ThemeConfig } from '@iluvcoconut/contracts';
 
 const supportedRasterExtensions = new Set(['.avif', '.jpeg', '.jpg', '.png', '.tif', '.tiff', '.webp']);
+const DEFAULT_AVIF_QUALITY = 52;
+const DEFAULT_WEBP_QUALITY = 78;
 
 export type RawAssetSourceStatus = 'supported' | 'unsupported';
 export type RawBackgroundRemovalMode = 'none' | 'white';
@@ -180,10 +182,10 @@ export async function optimizeRasterAsset(options: OptimizeRasterAssetOptions): 
 
     switch (format) {
       case 'avif':
-        pipeline = pipeline.avif({ quality: options.avifQuality ?? 52, effort: 6 });
+        pipeline = pipeline.avif({ quality: options.avifQuality ?? DEFAULT_AVIF_QUALITY, effort: 6 });
         break;
       case 'webp':
-        pipeline = pipeline.webp({ quality: options.webpQuality ?? 78, effort: 5, alphaQuality: 85 });
+        pipeline = pipeline.webp({ quality: options.webpQuality ?? DEFAULT_WEBP_QUALITY, effort: 5, alphaQuality: 85 });
         break;
       case 'png':
         pipeline = pipeline.png({ compressionLevel: 9, palette: true });

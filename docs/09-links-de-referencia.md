@@ -25,6 +25,13 @@
 - Tauri Configuration: https://v2.tauri.app/reference/config/
 - WRY WebView library: https://github.com/tauri-apps/wry
 - MDN Pointer Events: https://developer.mozilla.org/docs/Web/API/Pointer_events/Using_Pointer_Events
+- MDN Canvas getImageData: https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/getImageData
+- OpenCV.js Contours: https://docs.opencv.org/3.4/d0/d43/tutorial_js_table_of_contents_contours.html
+- OpenCV.js Usage: https://docs.opencv.org/4.x/d0/d84/tutorial_js_usage.html
+- OpenCV.js Thresholding: https://docs.opencv.org/3.4/d7/dd0/tutorial_js_thresholding.html
+- ImageMagick Connected Components: https://imagemagick.org/connected-components/
+- MarchingSquares.js: https://github.com/RaumZeit/MarchingSquares.js/
+- ESLint no-magic-numbers: https://eslint.org/docs/latest/rules/no-magic-numbers
 - TypeScript TSConfig Reference: https://www.typescriptlang.org/tsconfig/
 - ESLint Configuration Files: https://eslint.org/docs/latest/use/configure/configuration-files
 - typescript-eslint Typed Linting: https://typescript-eslint.io/getting-started/typed-linting/
