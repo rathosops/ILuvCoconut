@@ -1,0 +1,36 @@
+{
+  "name": "iluvcoconut",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ILuvCoconut: slot frontend engine TypeScript com renderers oficiais PixiJS e Cocos.",
+  "packageManager": "pnpm@9.15.0",
+  "type": "module",
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "lint": "eslint .",
+    "lint:ci": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc -b",
+    "test": "vitest run",
+    "quality": "pnpm typecheck && pnpm lint:ci && pnpm validate",
+    "dev:pixi": "pnpm --filter @iluvcoconut/player-pixi dev",
+    "build:pixi": "pnpm --filter @iluvcoconut/player-pixi build",
+    "assets:inspect-raw": "pnpm ilc raw:inspect raw-assets",
+    "docker:dev": "docker compose up player-pixi",
+    "docker:quality": "docker compose --profile tools run --rm quality",
+    "docker:build": "docker build --target production -t iluvcoconut/player-pixi:local .",
+    "docker:prod": "docker compose --profile production up web",
+    "ilc": "tsx packages/coconut-cli/src/index.ts",
+    "validate": "pnpm ilc validate games/fruit-classic",
+    "preview": "pnpm ilc preview games/fruit-classic --target pixi"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.19.0",
+    "typescript-eslint": "^8.0.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.0.0"
+  }
+}

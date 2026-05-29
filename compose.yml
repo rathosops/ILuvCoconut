@@ -1,0 +1,55 @@
+name: iluvcoconut
+
+services:
+  player-pixi:
+    build:
+      context: .
+      target: dev
+    command: sh -lc "pnpm install --frozen-lockfile && pnpm dev:pixi"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:5173"
+    volumes:
+      - .:/workspace
+      - root-node-modules:/workspace/node_modules
+      - player-pixi-node-modules:/workspace/apps/player-pixi/node_modules
+      - asset-pipeline-node-modules:/workspace/packages/coconut-asset-pipeline/node_modules
+      - cli-node-modules:/workspace/packages/coconut-cli/node_modules
+      - contracts-node-modules:/workspace/packages/coconut-contracts/node_modules
+      - core-node-modules:/workspace/packages/coconut-core/node_modules
+      - renderer-api-node-modules:/workspace/packages/coconut-renderer-api/node_modules
+      - renderer-cocos-node-modules:/workspace/packages/coconut-renderer-cocos/node_modules
+      - renderer-pixi-node-modules:/workspace/packages/coconut-renderer-pixi/node_modules
+      - test-tools-node-modules:/workspace/packages/coconut-test-tools/node_modules
+    restart: unless-stopped
+
+  quality:
+    build:
+      context: .
+      target: quality
+    command: sh -lc "pnpm typecheck && pnpm lint:ci && pnpm validate"
+    profiles:
+      - tools
+
+  web:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8080:8080"
+    profiles:
+      - production
+
+volumes:
+  root-node-modules:
+  player-pixi-node-modules:
+  asset-pipeline-node-modules:
+  cli-node-modules:
+  contracts-node-modules:
+  core-node-modules:
+  renderer-api-node-modules:
+  renderer-cocos-node-modules:
+  renderer-pixi-node-modules:
+  test-tools-node-modules:

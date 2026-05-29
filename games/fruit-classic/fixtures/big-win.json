@@ -1,0 +1,28 @@
+{
+  "roundId": "fixture-big-win",
+  "gameId": "fruit-classic",
+  "betAmount": 1,
+  "matrix": [
+    ["seven", "seven", "seven", "seven", "seven"],
+    ["cherry", "wild", "lemon", "scatter", "cherry"],
+    ["lemon", "cherry", "wild", "lemon", "scatter"]
+  ],
+  "wins": [
+    {
+      "id": "line-0-seven",
+      "type": "line",
+      "symbolId": "seven",
+      "amount": 500,
+      "positions": [
+        { "reel": 0, "row": 0 },
+        { "reel": 1, "row": 0 },
+        { "reel": 2, "row": 0 },
+        { "reel": 3, "row": 0 },
+        { "reel": 4, "row": 0 }
+      ],
+      "lineIndex": 1
+    }
+  ],
+  "totalWin": 500,
+  "presentation": { "bigWinLevel": "big" }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "fruit-classic",
+  "title": "Fruit Classic",
+  "template": "slot-5x3-classic",
+  "layout": {
+    "reels": 5,
+    "rows": 3,
+    "mode": "paylines"
+  },
+  "bet": {
+    "default": 1,
+    "min": 0.2,
+    "max": 100,
+    "denominations": [0.2, 0.5, 1, 2, 5, 10]
+  },
+  "symbols": [
+    { "id": "cherry", "type": "regular" },
+    { "id": "lemon", "type": "regular" },
+    { "id": "seven", "type": "regular" },
+    { "id": "wild", "type": "wild" },
+    { "id": "scatter", "type": "scatter" }
+  ],
+  "presentation": {
+    "spinDurationMs": 1300,
+    "reelStopDelayMs": 180,
+    "winCycleDelayMs": 1200,
+    "turboMode": true,
+    "quickSpin": true
+  },
+  "assetManifest": {
+    "gameId": "fruit-classic",
+    "version": "0.1.0",
+    "assets": []
+  }
+}

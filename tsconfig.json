@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/coconut-contracts" },
+    { "path": "packages/coconut-renderer-api" },
+    { "path": "packages/coconut-core" },
+    { "path": "packages/coconut-renderer-pixi" },
+    { "path": "packages/coconut-renderer-cocos" },
+    { "path": "packages/coconut-asset-pipeline" },
+    { "path": "packages/coconut-cli" },
+    { "path": "packages/coconut-test-tools" },
+    { "path": "apps/player-pixi" }
+  ]
+}

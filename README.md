@@ -1,0 +1,72 @@
+# ILuvCoconut
+
+**ILuvCoconut** é uma slot frontend engine TypeScript, otimizada para jogos de cassino web, com runtime próprio e dois renderers oficiais:
+
+- **Coconut Pixi**: renderer principal, Linux-first, CI/CD-first e produção web.
+- **Coconut Cocos**: renderer/editor opcional para equipes que usam Cocos Creator em Windows/macOS.
+
+O objetivo é criar uma factory de slots: novos jogos devem ser criados principalmente por configuração, assets e fixtures, sem duplicar lógica.
+
+## Instalação
+
+```bash
+pnpm install
+pnpm typecheck
+pnpm lint
+pnpm validate
+pnpm dev:pixi
+```
+
+## Desenvolvimento com Docker
+
+```bash
+docker compose up player-pixi
+```
+
+O player Pixi fica disponível em `http://localhost:3000`.
+
+Comandos úteis:
+
+```bash
+pnpm docker:dev      # sobe o Vite dev server em container
+pnpm docker:quality  # roda lint, typecheck e validate em container
+pnpm docker:build    # cria imagem estática de produção
+pnpm docker:prod     # serve o build Pixi com Nginx em http://localhost:8080
+```
+
+O Compose usa bind mount do código e volumes nomeados para `node_modules`, o que evita misturar dependências instaladas no host com dependências Linux do container. Na primeira subida, o container executa `pnpm install --frozen-lockfile` para popular esses volumes. Esse fluxo funciona tanto em Linux quanto em Windows com Docker Desktop/WSL2.
+
+## Estrutura
+
+```txt
+apps/player-pixi      Player web principal com Vite + PixiJS
+apps/player-cocos     Ponto de integração Cocos Creator
+packages/*            Core, contratos, render API, renderers, CLI e pipeline
+games/fruit-classic   Jogo de exemplo
+docs/                 Documentação técnica, CI/CD e boas práticas
+raw-assets/           Caixa de entrada local para arte bruta, ignorada pelo Git
+```
+
+## Qualidade
+
+```bash
+pnpm lint       # ESLint TypeScript
+pnpm typecheck  # TypeScript project references
+pnpm validate   # valida configs do jogo de exemplo
+pnpm build:pixi # build web oficial Linux-first
+pnpm quality    # typecheck, lint:ci e validate
+pnpm assets:inspect-raw # inspeciona raw-assets local
+```
+
+A esteira principal roda em GitHub Actions com install, typecheck, lint, validação e build Pixi. Em ambientes limpos, `typecheck` roda antes do lint para gerar os artefatos `dist` usados pelos manifests dos pacotes workspace. O Dependabot monitora GitHub Actions e dependências npm/pnpm do workspace.
+
+## Filosofia
+
+```txt
+Tudo que define o jogo fica no Coconut Core.
+Tudo que desenha o jogo fica em Coconut Pixi ou Coconut Cocos.
+```
+
+## Status
+
+Starter kit inicial. Ele não é um produto final, mas já estabelece a arquitetura, os contratos, a estrutura de pastas e a documentação para iniciar o desenvolvimento.

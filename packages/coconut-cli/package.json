@@ -1,0 +1,11 @@
+{
+  "name": "@iluvcoconut/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": { "ilc": "dist/index.js" },
+  "scripts": { "build": "tsc -b" },
+  "dependencies": {
+    "@iluvcoconut/contracts": "workspace:*",
+    "@iluvcoconut/asset-pipeline": "workspace:*"
+  }
+}

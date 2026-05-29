@@ -1,0 +1,23 @@
+{
+  "background": {
+    "portrait": "assets/optimized/common/background-portrait.webp",
+    "landscape": "assets/optimized/common/background-landscape.webp"
+  },
+  "symbols": {
+    "cherry": "assets/optimized/pixi/symbols.webp#cherry",
+    "lemon": "assets/optimized/pixi/symbols.webp#lemon",
+    "seven": "assets/optimized/pixi/symbols.webp#seven",
+    "wild": "assets/optimized/pixi/symbols.webp#wild",
+    "scatter": "assets/optimized/pixi/symbols.webp#scatter"
+  },
+  "audio": {
+    "spin": "assets/optimized/common/audio/spin.mp3",
+    "reelStop": "assets/optimized/common/audio/reel-stop.mp3",
+    "smallWin": "assets/optimized/common/audio/small-win.mp3",
+    "bigWin": "assets/optimized/common/audio/big-win.mp3"
+  },
+  "ui": {
+    "spinButton": "assets/optimized/common/ui/spin-button.webp",
+    "panel": "assets/optimized/common/ui/panel.webp"
+  }
+}

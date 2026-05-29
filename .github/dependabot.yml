@@ -1,0 +1,133 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 10
+    groups:
+      eslint:
+        patterns:
+          - eslint
+          - "@eslint/*"
+          - "typescript-eslint"
+      typescript:
+        patterns:
+          - typescript
+          - "@types/*"
+      test-tools:
+        patterns:
+          - vitest
+          - tsx
+
+  - package-ecosystem: npm
+    directory: /apps/player-pixi
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 5
+    groups:
+      pixi-player:
+        patterns:
+          - pixi.js
+          - vite
+          - typescript
+
+  - package-ecosystem: npm
+    directory: /apps/player-cocos/extensions/iluvcoconut-cocos-builder
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-asset-pipeline
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-cli
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-contracts
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-core
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-renderer-api
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-renderer-cocos
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-renderer-pixi
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3
+    groups:
+      pixi-renderer:
+        patterns:
+          - pixi.js
+
+  - package-ecosystem: npm
+    directory: /packages/coconut-test-tools
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 3

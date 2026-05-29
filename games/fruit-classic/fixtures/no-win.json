@@ -1,0 +1,13 @@
+{
+  "roundId": "fixture-no-win",
+  "gameId": "fruit-classic",
+  "betAmount": 1,
+  "matrix": [
+    ["cherry", "lemon", "seven", "cherry", "lemon"],
+    ["lemon", "seven", "cherry", "lemon", "seven"],
+    ["seven", "cherry", "lemon", "seven", "cherry"]
+  ],
+  "wins": [],
+  "totalWin": 0,
+  "presentation": { "bigWinLevel": "none" }
+}

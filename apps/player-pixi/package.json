@@ -1,0 +1,21 @@
+{
+  "name": "@iluvcoconut/player-pixi",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@iluvcoconut/contracts": "workspace:*",
+    "@iluvcoconut/core": "workspace:*",
+    "@iluvcoconut/pixi": "workspace:*",
+    "pixi.js": "^8.0.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0",
+    "typescript": "^5.9.0"
+  }
+}

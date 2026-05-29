@@ -1,0 +1,6 @@
+{
+  "name": "iluvcoconut-cocos-builder",
+  "version": "0.1.0",
+  "description": "Build extension placeholder para integrar configs ILuvCoconut ao Cocos Creator.",
+  "main": "./dist/main.js"
+}
