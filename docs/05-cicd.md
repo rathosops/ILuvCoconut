@@ -9,6 +9,7 @@ install
 typecheck
 lint
 validate configs
+rust tests
 validate assets
 headless tests
 build pixi
@@ -26,18 +27,19 @@ pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm lint:ci
 pnpm validate
+cargo test --workspace
 pnpm build:pixi
 ```
 
-`pnpm lint:ci` usa `--max-warnings=0`, então avisos de lint também bloqueiam pull requests. Em ambientes limpos, `typecheck` deve rodar antes do lint porque os manifests dos pacotes workspace apontam para `dist`. A evolução natural da esteira é adicionar testes headless, smoke tests de browser e budgets de performance conforme o runtime Pixi ganhar mais superfície visual.
+`pnpm lint:ci` usa `--max-warnings=0`, então avisos de lint também bloqueiam pull requests. Em ambientes limpos, `typecheck` deve rodar antes do lint porque os manifests dos pacotes workspace apontam para `dist`. A etapa Rust valida `coconut-vision`, `coconut-vision-cli` e o shell Tauri do Studio. A evolução natural da esteira é adicionar testes headless, smoke tests de browser e budgets de performance conforme o runtime Pixi ganhar mais superfície visual.
 
 ## Docker
 
 O projeto possui um `Dockerfile` multi-stage:
 
-- `dev`: ambiente Node/pnpm para desenvolvimento com Vite;
-- `quality`: ambiente para lint, typecheck e validação;
-- `build`: executa lint, typecheck, validate e build Pixi;
+- `dev`: ambiente Node/pnpm/Rust para desenvolvimento com Vite e CLI local;
+- `quality`: ambiente para typecheck, lint, validação e testes Rust;
+- `build`: executa typecheck, lint, validate, testes Rust e build Pixi;
 - `production`: serve `apps/player-pixi/dist` com Nginx.
 
 O `compose.yml` define:
@@ -55,6 +57,8 @@ docker compose --profile production up web
 docker build --target production -t iluvcoconut/player-pixi:local .
 ```
 
+O container instala a toolchain Rust porque `pnpm quality` inclui `cargo test --workspace` e o comando `raw:detect-symbols` depende do `coconut-vision-cli`.
+
 No Windows, usar Docker Desktop com backend WSL2. O projeto define `.gitattributes` com LF por padrão para evitar divergências de line endings entre Windows e Linux.
 
 ## Dependabot
@@ -63,6 +67,7 @@ O projeto possui `.github/dependabot.yml` para manter atualizados:
 
 - GitHub Actions;
 - dependências npm/pnpm da raiz;
+- dependências Cargo/Rust da raiz;
 - dependências do player Pixi;
 - dependências da extensão Cocos.
 

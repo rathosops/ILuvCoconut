@@ -102,15 +102,16 @@ O pipeline TypeScript deve falhar quando:
 
 ## Rust e WASM
 
-Rust entra quando houver ganho real de performance, paralelismo ou qualidade de codec:
+Rust entra quando houver ganho real de performance, paralelismo, visão computacional ou qualidade de codec. O primeiro uso oficial é o `coconut-vision`, responsável por detecção e crop de símbolos brutos:
 
+- `coconut-vision`: máscara, morfologia, componentes conectados, agrupamento por linhas e crop de símbolos;
 - `oxipng`: otimização PNG sem perdas, útil como etapa final ou verificação de CI;
 - `pngquant`/quantização: redução com perdas controladas para PNG quando fizer sentido;
 - `ravif`/AVIF: alternativa para codificação AVIF mais controlada;
 - WebAssembly com `wasm-bindgen`: processamento pesado no browser ou em workers sem bloquear a thread principal;
 - módulos Rust nativos no CI: batch grande de assets, execução paralela e builds reprodutíveis.
 
-Rust não deve substituir TypeScript para regras de negócio, manifests ou integração com o monorepo. Ele deve ser uma ferramenta especializada do pipeline.
+Rust não deve substituir TypeScript para regras de negócio, manifests ou integração com o monorepo. Ele deve ser uma ferramenta especializada do pipeline. TypeScript orquestra `raw:detect-symbols`; Rust executa o processamento pesado e testável.
 
 ## Orçamentos iniciais
 

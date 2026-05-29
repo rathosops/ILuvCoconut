@@ -3,7 +3,9 @@ import {
   CANVAS_SAFE_PADDING,
   COMPONENT_PADDING_BASE,
   COMPONENT_PADDING_MIN,
+  COMPONENT_ROW_CLUSTER_RATIO,
   DETECTED_MODE,
+  DETECTION_SCORE_MAX,
   HALF_DIVISOR,
   MIN_COUNT_INPUT,
   MIN_NUMERIC_INPUT
@@ -44,7 +46,7 @@ export function componentBoundsToFrames(bounds: ComponentBounds[], imageWidth: n
   const padding = Math.max(COMPONENT_PADDING_MIN, Math.round(COMPONENT_PADDING_BASE * scale));
   const inverseScale = MIN_COUNT_INPUT / scale;
 
-  return bounds
+  const frames = bounds
     .map((component, index) => {
       const x = Math.max(MIN_NUMERIC_INPUT, Math.floor((component.minX - padding) * inverseScale));
       const y = Math.max(MIN_NUMERIC_INPUT, Math.floor((component.minY - padding) * inverseScale));
@@ -59,9 +61,41 @@ export function componentBoundsToFrames(bounds: ComponentBounds[], imageWidth: n
         width: Math.max(MIN_COUNT_INPUT, maxX - x),
         height: Math.max(MIN_COUNT_INPUT, maxY - y)
       };
-    })
-    .sort((left, right) => left.y - right.y || left.x - right.x)
-    .map((frame, index) => ({ ...frame, index, column: index }));
+    });
+
+  return assignRowsAndColumns(frames);
+}
+
+function assignRowsAndColumns(frames: FrameRect[]): FrameRect[] {
+  const medianHeight = median(frames.map((frame) => frame.height));
+  const rowTolerance = Math.max(MIN_COUNT_INPUT, Math.round(medianHeight * COMPONENT_ROW_CLUSTER_RATIO));
+  const rows: FrameRect[][] = [];
+
+  for (const frame of [...frames].sort((left, right) => centerY(left) - centerY(right) || left.x - right.x)) {
+    const row = rows.find((candidate) => Math.abs(centerY(candidate[MIN_NUMERIC_INPUT] ?? frame) - centerY(frame)) <= rowTolerance);
+    if (row) {
+      row.push(frame);
+      continue;
+    }
+
+    rows.push([frame]);
+  }
+
+  return rows
+    .map((row, rowIndex) => row.sort((left, right) => left.x - right.x).map((frame, columnIndex) => ({ ...frame, row: rowIndex, column: columnIndex })))
+    .flat()
+    .map((frame, index) => ({ ...frame, index }))
+    .sort((left, right) => left.index - right.index);
+}
+
+function centerY(frame: FrameRect): number {
+  return frame.y + frame.height / HALF_DIVISOR;
+}
+
+function median(values: number[]): number {
+  if (values.length === MIN_NUMERIC_INPUT) return DETECTION_SCORE_MAX;
+  const sorted = [...values].sort((left, right) => left - right);
+  return sorted[Math.floor(sorted.length / HALF_DIVISOR)] ?? DETECTION_SCORE_MAX;
 }
 
 export function frameAtPointer(

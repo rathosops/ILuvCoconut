@@ -20,10 +20,17 @@ Este starter kit foi estruturado a partir de documentação oficial e decisões 
 
 - O projeto usa `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitOverride` e `forceConsistentCasingInFileNames` para reduzir bugs em contratos compartilhados.
 
+## Rust e Coconut Vision
+
+- `coconut-vision` é o núcleo Rust compartilhado para detecção e crop de símbolos.
+- Tauri chama o núcleo via command para o Studio local.
+- O CLI Rust executa batch/crop por arquivo e é orquestrado pelo `pnpm ilc raw:detect-symbols`.
+- Cargo workspace centraliza a validação Rust com `cargo test --workspace`.
+
 ## Vite
 
 - Vite gera bundles de produção para hosting estático e possui tratamento próprio de assets com hashing quando caminhos são analisáveis estaticamente.
 
 ## Decisão final
 
-PixiJS é o renderer principal de produção e Linux/CI. Cocos Creator é renderer/editor opcional. O ILuvCoconut Core é dono da definição do jogo.
+PixiJS é o renderer principal de produção e Linux/CI. Cocos Creator é renderer/editor opcional. O ILuvCoconut Core é dono da definição do jogo. Coconut Vision é dono de visão computacional e crop de assets brutos.

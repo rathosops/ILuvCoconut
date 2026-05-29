@@ -1,14 +1,15 @@
 [package]
 name = "iluvcoconut-studio"
-version = "0.1.0"
+version.workspace = true
 description = "ILuvCoconut Studio local shell"
-authors = ["ILuvCoconut"]
-edition = "2021"
+authors.workspace = true
+edition.workspace = true
 
 [build-dependencies]
-tauri-build = { version = "2", features = [] }
+tauri-build.workspace = true
 
 [dependencies]
-tauri = { version = "2", features = [] }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+coconut-vision.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tauri.workspace = true

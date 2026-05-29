@@ -1,3 +1,4 @@
+import { ANALYSIS_MAX_PIXELS, MIN_COUNT_INPUT } from './studioConstants';
 import type { ComponentBounds, RgbColor } from './types';
 
 export interface OpenCvDetectionRequest {
@@ -10,6 +11,7 @@ export interface OpenCvDetectionRequest {
 export interface OpenCvDetectionResult {
   bounds: ComponentBounds[];
   backend: 'opencv';
+  analysisScale: number;
 }
 
 interface OpenCvRuntime {
@@ -44,7 +46,7 @@ declare global {
 const OPENCV_SCRIPT_ID = 'iluvcoconut-opencv-js';
 const OPENCV_CDN_URL = 'https://docs.opencv.org/4.x/opencv.js';
 const OPENCV_LOAD_TIMEOUT_MS = 15000;
-const OPEN_CV_COLOR_PADDING = 1;
+const OPEN_CV_MORPH_KERNEL_SIZE = 3;
 const OPEN_CV_COLOR_CHANNEL_MAX = 255;
 const OPEN_CV_STAT_STRIDE = 5;
 
@@ -79,17 +81,25 @@ export async function loadOpenCv(): Promise<OpenCvRuntime> {
     if (!existing) document.head.appendChild(script);
   });
 
-  return loadingOpenCv;
+  try {
+    return await loadingOpenCv;
+  } catch (error: unknown) {
+    loadingOpenCv = undefined;
+    throw error;
+  }
 }
 
 export async function detectFiguresWithOpenCv(request: OpenCvDetectionRequest): Promise<OpenCvDetectionResult> {
   const cv = await loadOpenCv();
+  const analysisScale = Math.min(MIN_COUNT_INPUT, Math.sqrt(ANALYSIS_MAX_PIXELS / (request.image.naturalWidth * request.image.naturalHeight)));
+  const width = Math.max(MIN_COUNT_INPUT, Math.round(request.image.naturalWidth * analysisScale));
+  const height = Math.max(MIN_COUNT_INPUT, Math.round(request.image.naturalHeight * analysisScale));
   const canvas = document.createElement('canvas');
-  canvas.width = request.image.naturalWidth;
-  canvas.height = request.image.naturalHeight;
+  canvas.width = width;
+  canvas.height = height;
   const context = canvas.getContext('2d');
   if (!context) throw new Error('Unable to create OpenCV staging canvas.');
-  context.drawImage(request.image, 0, 0);
+  context.drawImage(request.image, 0, 0, width, height);
 
   const source = cv.imread(canvas);
   const rgb = new cv.Mat();
@@ -97,6 +107,7 @@ export async function detectFiguresWithOpenCv(request: OpenCvDetectionRequest): 
   const labels = new cv.Mat();
   const stats = new cv.Mat();
   const centroids = new cv.Mat();
+  let kernel: unknown;
 
   try {
     cv.cvtColor(source, rgb, cv.COLOR_RGBA2RGB);
@@ -114,11 +125,12 @@ export async function detectFiguresWithOpenCv(request: OpenCvDetectionRequest): 
     );
     cv.inRange(rgb, lower, upper, mask);
     cv.bitwise_not(mask, mask);
-    const kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(OPEN_CV_COLOR_PADDING, OPEN_CV_COLOR_PADDING));
+    kernel = cv.getStructuringElement(cv.MORPH_RECT, new cv.Size(OPEN_CV_MORPH_KERNEL_SIZE, OPEN_CV_MORPH_KERNEL_SIZE));
     cv.morphologyEx(mask, mask, cv.MORPH_OPEN, kernel);
     const count = cv.connectedComponentsWithStats(mask, labels, stats, centroids);
-    const bounds = extractComponentBounds(cv, stats, count, request.minArea);
-    return { bounds, backend: 'opencv' };
+    const minArea = Math.max(MIN_COUNT_INPUT, Math.round(request.minArea * analysisScale * analysisScale));
+    const bounds = extractComponentBounds(cv, stats, count, minArea);
+    return { bounds, backend: 'opencv', analysisScale };
   } finally {
     disposeMat(source);
     disposeMat(rgb);
@@ -126,6 +138,7 @@ export async function detectFiguresWithOpenCv(request: OpenCvDetectionRequest): 
     disposeMat(labels);
     disposeMat(stats);
     disposeMat(centroids);
+    disposeMat(kernel);
   }
 }
 

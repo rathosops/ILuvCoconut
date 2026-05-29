@@ -21,10 +21,11 @@ Não referencie `raw-assets/` em `theme.config.json`, manifests finais ou códig
 2. Rodar inspeção para listar formatos, dimensões e arquivos não suportados.
 3. Rasterizar arquivos vetoriais como EPS para PNG/WebP/TIFF com ferramenta artística.
 4. Fatiar spritesheets por grid quando os símbolos estiverem em células regulares.
-5. Remover fundo branco apenas quando ele for realmente sólido.
-6. Revisar visualmente os PNGs gerados.
-7. Salvar símbolos, backgrounds, UI e áudio em `games/<game-id>/assets/raw/`.
-8. Gerar saídas otimizadas em `games/<game-id>/assets/optimized/`.
+5. Usar `coconut-vision` para detectar figuras quando a folha não for uma grade regular.
+6. Remover fundo branco apenas quando ele for realmente sólido.
+7. Revisar visualmente os PNGs gerados.
+8. Salvar símbolos, backgrounds, UI e áudio em `games/<game-id>/assets/raw/`.
+9. Gerar saídas otimizadas em `games/<game-id>/assets/optimized/`.
 
 ## Comandos
 
@@ -48,6 +49,17 @@ pnpm ilc raw:slice-grid \
 
 O comando gera PNGs numerados em `games/fruit-classic/assets/raw/symbols/`.
 
+Detectar e recortar figuras por conteúdo usa o núcleo `coconut-vision`:
+
+```bash
+pnpm ilc raw:detect-symbols \
+  raw-assets/default-base-slot/source.jpg \
+  games/fruit-classic/assets/raw/symbols \
+  fruit-classic
+```
+
+O comando orquestra o CLI Rust `coconut-vision crop` e imprime o JSON com detecção, resumo e crops gerados.
+
 ## Limites da automação
 
 A remoção automática de fundo só é confiável para fundos simples, principalmente branco sólido. Fundos com textura, gradiente, sombra misturada ao objeto ou reflexos precisam de tratamento artístico ou segmentação especializada antes do recorte final.
@@ -56,9 +68,9 @@ EPS não deve ir para runtime web. Ele deve ser usado como fonte de autoria e ex
 
 ## Studio e auto-detect
 
-O Coconut Studio possui detecção inicial de figuras no browser usando diferença de cor em relação ao fundo e componentes conectados. Esse caminho é útil para spritesheets como os exemplos de slot em que há vários símbolos sobre uma base visual parecida.
+O Coconut Studio possui detecção inicial de figuras no browser usando diferença de cor em relação ao fundo e componentes conectados. Esse caminho é útil para feedback rápido em spritesheets como os exemplos de slot em que há vários símbolos sobre uma base visual parecida.
 
-Use o auto-detect para acelerar o trabalho, mas revise visualmente cada frame. Quando o resultado não for bom, volte para grid manual ou ajuste tolerância/área mínima. Para casos mais difíceis, o Studio pode carregar OpenCV.js sob demanda para uma segmentação mais robusta sem aumentar o bundle inicial.
+Use o auto-detect para acelerar o trabalho, mas revise visualmente cada frame. Quando o resultado não for bom, volte para grid manual ou ajuste tolerância/área mínima. Para recorte de produção, o Studio deve chamar `coconut-vision` via Tauri e o CLI deve usar o mesmo núcleo Rust.
 
 Para recortes de produção, a saída final ainda deve passar pelo pipeline CLI/Tauri e validação de assets.
 
@@ -72,6 +84,7 @@ Para recortes de produção, a saída final ainda deve passar pelo pipeline CLI/
 - Usar nomes estáveis: `symbol.cherry`, `symbol.wild`, `symbol.scatter`.
 - Separar frames de animação por sequência previsível.
 - Gerar atlas com padding/extrude.
+- Registrar parâmetros de detecção e versão do algoritmo quando usar `coconut-vision`.
 - Validar o resultado no Pixi e, quando aplicável, no Cocos.
 
 ## Pixi e Cocos

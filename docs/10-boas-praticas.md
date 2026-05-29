@@ -42,6 +42,16 @@ export class WinPresentationPlanner {
 - Não ignorar erros do TypeScript sem uma justificativa curta e verificável.
 - Rodar `pnpm lint`, `pnpm typecheck` e `pnpm validate` antes de abrir PR.
 
+## Rust
+
+- Manter `coconut-vision` como biblioteca de domínio, sem dependência de DOM, Canvas ou Tauri.
+- Usar wrappers finos para Tauri e CLI; a regra de detecção fica na crate compartilhada.
+- Preferir tipos serializáveis com `serde` e nomes `camelCase` quando a resposta atravessar para TypeScript.
+- Propagar erros com `Result` e mensagens de domínio; não usar `unwrap()` em caminho de produção.
+- Usar buffers lineares e constantes nomeadas para dimensões, thresholds, kernels e limites.
+- Testar máscara, componentes, agrupamento e crop com fixtures pequenas antes de calibrar imagens reais.
+- Rodar `cargo test --workspace` junto de `pnpm typecheck`, `pnpm lint:ci` e `pnpm validate`.
+
 ## Organização de módulos
 
 Arquivos TypeScript devem ser pequenos o suficiente para leitura, revisão e teste local. Use módulos ES por responsabilidade, seguindo a organização recomendada pelo Handbook do TypeScript: cada arquivo deve exportar uma superfície clara e importar apenas o que precisa.
@@ -109,9 +119,10 @@ Qualquer mudança que force o core a conhecer PixiJS, Cocos ou detalhes de DOM d
 Antes de revisar ou integrar uma mudança:
 
 ```bash
-pnpm lint:ci
 pnpm typecheck
+pnpm lint:ci
 pnpm validate
+cargo test --workspace
 pnpm build:pixi
 ```
 

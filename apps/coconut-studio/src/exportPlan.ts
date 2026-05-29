@@ -21,7 +21,8 @@ export function createExportPlan({ assetPrefix, gameId, state }: ExportPlanInput
     detection: {
       threshold: state.detectionThreshold,
       minArea: state.detectionMinArea,
-      backend: state.detectionBackend
+      backend: state.detectionBackend,
+      summary: state.detectionSummary ?? null
     },
     grid: state.grid,
     frames: getFrames(state)

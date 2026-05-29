@@ -12,6 +12,9 @@ build
 **/build
 coverage
 **/coverage
+target
+**/target
+apps/coconut-studio/src-tauri/gen
 *.tsbuildinfo
 **/*.tsbuildinfo
 apps/*/*.js

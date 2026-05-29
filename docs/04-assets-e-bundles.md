@@ -56,12 +56,13 @@ games/<game-id>/assets/optimized/
 
 ## Processamento de imagens brutas
 
-O pipeline inicial suporta inspeção e fatiamento por grid de spritesheets rasterizados:
+O pipeline suporta inspeção, fatiamento por grid e detecção por conteúdo com `coconut-vision`:
 
 ```bash
 pnpm assets:inspect-raw
 pnpm ilc raw:inspect raw-assets
 pnpm ilc raw:slice-grid raw-assets/default-base-slot/source.jpg games/fruit-classic/assets/raw/symbols 5 3 fruit-classic
+pnpm ilc raw:detect-symbols raw-assets/default-base-slot/source.jpg games/fruit-classic/assets/raw/symbols fruit-classic
 pnpm assets:optimize-image raw-assets/default-base-slot/source.jpg games/fruit-classic/assets/optimized/pixi symbol-test 512
 ```
 
@@ -71,6 +72,13 @@ pnpm assets:optimize-image raw-assets/default-base-slot/source.jpg games/fruit-c
 - recorte por célula;
 - `trim` de borda;
 - tentativa controlada de remover fundo branco com alpha.
+
+`raw:detect-symbols` usa o `coconut-vision` em Rust para:
+
+- detectar figuras por diferença de fundo, morfologia e componentes conectados;
+- agrupar linhas com quantidades variáveis de símbolos;
+- gerar crops PNG em `games/<game-id>/assets/raw/symbols`;
+- imprimir JSON com resumo, parâmetros e arquivos gerados.
 
 `raw:optimize-image` gera variantes AVIF, WebP e PNG otimizado. PNG não deve ser a primeira escolha para runtime web quando AVIF/WebP mantiverem qualidade visual com menos bytes.
 

@@ -1,0 +1,13 @@
+[package]
+name = "coconut-vision"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[dependencies]
+image.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true

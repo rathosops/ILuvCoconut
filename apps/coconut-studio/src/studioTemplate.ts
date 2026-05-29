@@ -64,7 +64,8 @@ const STUDIO_SHELL_TEMPLATE = `
             <label>Area minima <input id="detectionMinArea" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_DETECTION_MIN_AREA}" /></label>
           </div>
           <div class="segmented secondary">
-            <button id="heuristicBackend" class="active" type="button">Leve</button>
+            <button id="coconutVisionBackend" class="active" type="button">Coconut Vision</button>
+            <button id="heuristicBackend" type="button">Leve</button>
             <button id="opencvBackend" type="button">OpenCV</button>
           </div>
           <div class="tool-row">

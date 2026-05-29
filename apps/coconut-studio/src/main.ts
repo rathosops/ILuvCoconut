@@ -1,9 +1,10 @@
 import './styles.css';
+import { detectFiguresWithCoconutVision } from './coconutVision';
 import { drawStudioCanvas } from './canvasRenderer';
 import { getCanvasContext, getElement, getInputTarget } from './dom';
 import { createExportPlan } from './exportPlan';
 import { componentBoundsToFrames, frameAtPointer, getFrames } from './frameMath';
-import { detectFigureFramesWithHeuristic, sampleBackgroundColor } from './imageDetection';
+import { detectFiguresWithHeuristic, sampleBackgroundColor } from './imageDetection';
 import { detectFiguresWithOpenCv } from './opencv';
 import {
   DEFAULT_BACKGROUND_COLOR,
@@ -12,6 +13,7 @@ import {
   DEFAULT_DETECTION_THRESHOLD,
   DEFAULT_GRID,
   DEFAULT_ZOOM,
+  COCONUT_VISION_BACKEND,
   DETECTED_MODE,
   GRID_MODE,
   HEURISTIC_BACKEND,
@@ -26,7 +28,7 @@ import {
   ZOOM_STEP
 } from './studioConstants';
 import { renderStudioShell } from './studioTemplate';
-import type { DetectionBackend, FrameMode, FrameRect, StudioState } from './types';
+import type { DetectionBackend, DetectionSummary, FrameMode, FrameRect, StudioState } from './types';
 
 const state: StudioState = {
   grid: { ...DEFAULT_GRID },
@@ -38,7 +40,8 @@ const state: StudioState = {
   detectionThreshold: DEFAULT_DETECTION_THRESHOLD,
   detectionMinArea: DEFAULT_DETECTION_MIN_AREA,
   detectionBackend: DEFAULT_DETECTION_BACKEND,
-  detectedFrames: []
+  detectedFrames: [],
+  detectionSummary: undefined
 };
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -64,6 +67,7 @@ bindNumberInput('detectionMinArea', (value) => { state.detectionMinArea = Math.m
 
 getElement<HTMLButtonElement>('gridMode').addEventListener('click', () => { setFrameMode(GRID_MODE); });
 getElement<HTMLButtonElement>('detectedMode').addEventListener('click', () => { setFrameMode(DETECTED_MODE); });
+getElement<HTMLButtonElement>('coconutVisionBackend').addEventListener('click', () => { setDetectionBackend(COCONUT_VISION_BACKEND); });
 getElement<HTMLButtonElement>('heuristicBackend').addEventListener('click', () => { setDetectionBackend(HEURISTIC_BACKEND); });
 getElement<HTMLButtonElement>('opencvBackend').addEventListener('click', () => { setDetectionBackend(OPENCV_BACKEND); });
 
@@ -137,6 +141,7 @@ async function loadImageFile(file: File): Promise<void> {
   state.imageUrl = imageUrl;
   state.selectedFrame = MIN_NUMERIC_INPUT;
   state.detectedFrames = [];
+  state.detectionSummary = undefined;
   state.backgroundColor = sampleBackgroundColor(image);
   updateBackgroundSwatch();
   setStatus(`${file.name} carregado: ${image.naturalWidth}x${image.naturalHeight}`);
@@ -161,13 +166,15 @@ async function detectFigures(): Promise<void> {
   setStatus(state.detectionBackend === OPENCV_BACKEND ? 'Carregando OpenCV.js...' : 'Detectando figuras...');
 
   try {
-    state.detectedFrames = state.detectionBackend === OPENCV_BACKEND
-      ? await detectFigureFramesWithOpenCv(state.image)
-      : detectFigureFramesWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
-    setStatus(`${state.detectedFrames.length} figuras detectadas com ${state.detectionBackend}.`);
+    const result = await detectFiguresWithPreferredBackend();
+    state.detectedFrames = result.frames;
+    state.detectionSummary = result.summary;
+    setStatus(formatDetectionSummary(result.summary));
   } catch (error: unknown) {
-    state.detectedFrames = detectFigureFramesWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
-    setStatus(`OpenCV indisponivel; fallback leve usado. ${error instanceof Error ? error.message : ''}`.trim());
+    const result = detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
+    state.detectedFrames = result.frames;
+    state.detectionSummary = result.summary;
+    setStatus(`OpenCV indisponivel; fallback leve usado. ${formatDetectionSummary(result.summary)} ${error instanceof Error ? error.message : ''}`.trim());
   }
 
   state.selectedFrame = MIN_NUMERIC_INPUT;
@@ -175,14 +182,38 @@ async function detectFigures(): Promise<void> {
   updateBackgroundSwatch();
 }
 
-async function detectFigureFramesWithOpenCv(image: HTMLImageElement): Promise<FrameRect[]> {
+async function detectFiguresWithPreferredBackend(): Promise<{ frames: FrameRect[]; summary: DetectionSummary }> {
+  if (!state.image) return { frames: [], summary: createEmptySummary() };
+  if (state.detectionBackend === OPENCV_BACKEND) return detectFigureFramesWithOpenCv(state.image);
+  if (state.detectionBackend === HEURISTIC_BACKEND) return detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
+
+  try {
+    return await detectFiguresWithCoconutVision(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
+  } catch {
+    return detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
+  }
+}
+
+async function detectFigureFramesWithOpenCv(image: HTMLImageElement): Promise<{ frames: FrameRect[]; summary: DetectionSummary }> {
+  const startedAt = performance.now();
   const result = await detectFiguresWithOpenCv({
     image,
     backgroundColor: state.backgroundColor,
     threshold: state.detectionThreshold,
     minArea: state.detectionMinArea
   });
-  return componentBoundsToFrames(result.bounds, image.naturalWidth, image.naturalHeight, MIN_COUNT_INPUT);
+  const frames = componentBoundsToFrames(result.bounds, image.naturalWidth, image.naturalHeight, result.analysisScale);
+  return {
+    frames,
+    summary: {
+      backend: result.backend,
+      figureCount: frames.length,
+      rowCount: countRows(frames),
+      figuresByRow: countFiguresByRow(frames),
+      analysisScale: result.analysisScale,
+      elapsedMs: Math.round(performance.now() - startedAt)
+    }
+  };
 }
 
 function setFrameMode(mode: FrameMode): void {
@@ -195,6 +226,7 @@ function setFrameMode(mode: FrameMode): void {
 
 function setDetectionBackend(backend: DetectionBackend): void {
   state.detectionBackend = backend;
+  getElement<HTMLButtonElement>('coconutVisionBackend').classList.toggle('active', backend === COCONUT_VISION_BACKEND);
   getElement<HTMLButtonElement>('heuristicBackend').classList.toggle('active', backend === HEURISTIC_BACKEND);
   getElement<HTMLButtonElement>('opencvBackend').classList.toggle('active', backend === OPENCV_BACKEND);
 }
@@ -215,4 +247,30 @@ function setFrameInfo(value: string): void {
 
 function setStatus(value: string): void {
   getElement<HTMLSpanElement>('statusText').textContent = value;
+}
+
+function formatDetectionSummary(summary: DetectionSummary): string {
+  if (summary.figureCount === MIN_NUMERIC_INPUT) return `Nenhuma figura encontrada com ${summary.backend}. Ajuste tolerancia ou area minima.`;
+  const rowText = summary.figuresByRow.length > MIN_NUMERIC_INPUT ? ` (${summary.figuresByRow.join('/')})` : '';
+  return `${summary.figureCount} figuras em ${summary.rowCount} linhas${rowText} com ${summary.backend} em ${summary.elapsedMs}ms.`;
+}
+
+function countRows(frames: FrameRect[]): number {
+  return new Set(frames.map((frame) => frame.row)).size;
+}
+
+function countFiguresByRow(frames: FrameRect[]): number[] {
+  const rowCount = countRows(frames);
+  return Array.from({ length: rowCount }, (_, row) => frames.filter((frame) => frame.row === row).length);
+}
+
+function createEmptySummary(): DetectionSummary {
+  return {
+    backend: 'heuristic',
+    figureCount: MIN_NUMERIC_INPUT,
+    rowCount: MIN_NUMERIC_INPUT,
+    figuresByRow: [],
+    analysisScale: MIN_COUNT_INPUT,
+    elapsedMs: MIN_NUMERIC_INPUT
+  };
 }

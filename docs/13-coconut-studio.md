@@ -11,6 +11,7 @@ TypeScript + Vite
   -> DOM/CSS para painéis, formulários e inspector
   -> Canvas para recorte visual, overlays e preview
   -> Tauri/Rust para filesystem, permissões e tarefas locais
+  -> coconut-vision para detecção e crop de produção
 ```
 
 Tauri foi escolhido porque usa Rust no backend e WebView do sistema operacional. No Windows usa WebView2; no Linux usa WebKitGTK; no macOS usa WKWebView. Isso é mais leve que Electron, mas exige testes reais por sistema operacional.
@@ -83,7 +84,9 @@ imagem -> canvas de análise -> amostra de fundo -> máscara foreground -> compo
 
 Essa abordagem é adequada para spritesheets com fundo relativamente uniforme, como a screenshot analisada na raiz do projeto. Ela permite encontrar figuras que não se encaixam perfeitamente em uma grade fixa, ou casos em que uma célula contém mais de um símbolo.
 
-Também existe backend OpenCV.js opcional, carregado sob demanda. Ele não entra no bundle inicial do Studio; o carregamento acontece apenas quando o usuário escolhe `OpenCV` e executa `Auto figuras`. Se o runtime não carregar, o Studio usa fallback leve.
+O caminho de produção passa a ser o `coconut-vision`, uma crate Rust compartilhada entre Tauri e CLI. O detector TypeScript permanece como preview rápido no browser; o `coconut-vision` deve gerar resultado reprodutível, testável e adequado para crop final em alta resolução.
+
+Também existe backend OpenCV.js opcional, carregado sob demanda. Ele não entra no bundle inicial do Studio; o carregamento acontece apenas quando o usuário escolhe `OpenCV` e executa `Auto figuras`. Se o runtime não carregar, o Studio usa fallback leve. OpenCV.js não é o backend principal de produção.
 
 Controles atuais:
 
@@ -94,6 +97,7 @@ Controles atuais:
 - `Largura` e `Altura`: permitem dimensionar manualmente a célula do grid quando a divisão automática não encaixa.
 - `Leve`: usa heurística própria com `getImageData` e componentes conectados.
 - `OpenCV`: usa OpenCV.js para threshold, morfologia e componentes quando disponível.
+- `coconut-vision`: backend Rust via Tauri para detecção de produção, com fallback para a heurística TypeScript quando indisponível.
 
 Limites:
 
@@ -106,16 +110,18 @@ Limites:
 
 Para avançar além da heurística leve:
 
-- OpenCV.js para `threshold`, operações morfológicas e `findContours`;
-- manter OpenCV.js em carregamento lazy ou empacotamento separado, porque o WASM pode aumentar peso de download;
+- `coconut-vision` como crate Rust compartilhada por Tauri e CLI;
+- manter OpenCV.js apenas como backend opcional/lazy, não como dependência principal;
 - Marching Squares para gerar contornos editáveis;
 - Web Worker ou OffscreenCanvas para não bloquear a UI;
-- Rust/WASM para componentes conectados, matting e rasterização em lote;
+- Rust/WASM apenas como evolução futura caso o Studio web precise do mesmo núcleo sem Tauri;
 - Tauri commands para rodar o pipeline local com `sharp`, `oxipng`, `ravif` e validações de assets.
 
 ## Próximos passos
 
 - Conectar o Studio ao `@iluvcoconut/asset-pipeline` via comandos Tauri.
+- Integrar o Studio ao `coconut-vision` via Tauri command.
+- Usar `pnpm ilc raw:detect-symbols` para crop final por arquivo quando o resultado revisado estiver pronto para produção.
 - Permitir escolher pasta de jogo local.
 - Escrever planos de recorte e manifests com escrita atômica.
 - Adicionar ferramenta de linhas/polígonos para recorte manual.
@@ -126,6 +132,7 @@ Para avançar além da heurística leve:
 ## Riscos
 
 - `@iluvcoconut/asset-pipeline` usa filesystem e `sharp`, então não deve ir para bundle browser.
+- `coconut-vision` deve permanecer fora do bundle web; o browser usa preview TypeScript e o desktop usa Tauri/Rust.
 - WebView varia por sistema operacional; testar Linux/Windows/macOS.
 - Ferramentas de recorte manual precisam preservar coordenadas em pixels reais da imagem.
 - Remoção de fundo complexa deve ficar em pipeline especializado, não em heurística visual frágil.

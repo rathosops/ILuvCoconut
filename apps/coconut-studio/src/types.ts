@@ -1,5 +1,5 @@
 export type FrameMode = 'grid' | 'detected';
-export type DetectionBackend = 'heuristic' | 'opencv';
+export type DetectionBackend = 'heuristic' | 'opencv' | 'rust' | 'coconutVision';
 
 export interface CropGrid {
   columns: number;
@@ -32,6 +32,7 @@ export interface StudioState {
   detectionMinArea: number;
   detectionBackend: DetectionBackend;
   detectedFrames: FrameRect[];
+  detectionSummary?: DetectionSummary | undefined;
 }
 
 export interface FrameRect {
@@ -56,4 +57,13 @@ export interface ComponentBounds {
   maxX: number;
   maxY: number;
   area: number;
+}
+
+export interface DetectionSummary {
+  backend: DetectionBackend;
+  figureCount: number;
+  rowCount: number;
+  figuresByRow: number[];
+  analysisScale: number;
+  elapsedMs: number;
 }

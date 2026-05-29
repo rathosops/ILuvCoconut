@@ -14,9 +14,12 @@ pnpm install
 pnpm typecheck
 pnpm lint
 pnpm validate
+pnpm rust:test
 pnpm dev:pixi
 pnpm dev:studio
 ```
+
+`pnpm quality` executa a validação completa local: TypeScript, ESLint, configs do jogo de exemplo e testes Rust do `coconut-vision`.
 
 ## Desenvolvimento com Docker
 
@@ -46,10 +49,23 @@ apps/player-pixi      Player web principal com Vite + PixiJS
 apps/coconut-studio   Interface web/local para montar slots e tratar assets
 apps/player-cocos     Ponto de integração Cocos Creator
 packages/*            Core, contratos, render API, renderers, CLI e pipeline
+crates/*              Coconut Vision em Rust e CLI de visão
 games/fruit-classic   Jogo de exemplo
 docs/                 Documentação técnica, CI/CD e boas práticas
 raw-assets/           Caixa de entrada local para arte bruta, ignorada pelo Git
 ```
+
+## Fluxo de assets
+
+```txt
+raw-assets/<fonte>/sheet.png
+  -> pnpm ilc raw:detect-symbols <input> games/<game-id>/assets/raw/symbols <prefix>
+  -> pnpm assets:optimize-image <input> <outputDir> <assetId> [width]
+  -> games/<game-id>/assets/optimized/
+  -> theme.config.json / manifest
+```
+
+`raw:detect-symbols` usa o `coconut-vision` em Rust para detectar figuras por conteúdo e salvar crops PNG em `games/<game-id>/assets/raw/symbols`.
 
 ## Qualidade
 
@@ -57,14 +73,16 @@ raw-assets/           Caixa de entrada local para arte bruta, ignorada pelo Git
 pnpm lint       # ESLint TypeScript
 pnpm typecheck  # TypeScript project references
 pnpm validate   # valida configs do jogo de exemplo
+pnpm rust:test  # testes Rust do coconut-vision, CLI e Tauri
 pnpm build:pixi # build web oficial Linux-first
 pnpm build:studio # build da interface Studio
 pnpm quality    # typecheck, lint:ci e validate
 pnpm assets:inspect-raw # inspeciona raw-assets local
+pnpm assets:detect-symbols <input> <outputDir> <namePrefix> [threshold] [minArea] [padding]
 pnpm assets:optimize-image <input> <outputDir> <assetId> [width]
 ```
 
-A esteira principal roda em GitHub Actions com install, typecheck, lint, validação e build Pixi. Em ambientes limpos, `typecheck` roda antes do lint para gerar os artefatos `dist` usados pelos manifests dos pacotes workspace. O Dependabot monitora GitHub Actions e dependências npm/pnpm do workspace.
+A esteira principal roda em GitHub Actions com install, typecheck, lint, validação, testes Rust e build Pixi. Em ambientes limpos, `typecheck` roda antes do lint para gerar os artefatos `dist` usados pelos manifests dos pacotes workspace. O Dependabot monitora GitHub Actions, dependências npm/pnpm e Cargo.
 
 ## Filosofia
 

@@ -1,0 +1,14 @@
+[package]
+name = "coconut-vision-cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+
+[[bin]]
+name = "coconut-vision"
+path = "src/main.rs"
+
+[dependencies]
+clap.workspace = true
+coconut-vision.workspace = true
+serde_json.workspace = true

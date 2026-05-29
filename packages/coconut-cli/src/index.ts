@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { spawn } from 'node:child_process';
 import {
   buildAssetManifest,
   listRawAssetSources,
@@ -16,6 +17,7 @@ const handlers: Record<string, CommandHandler> = {
   manifest: printManifest,
   preview: showPreviewPlaceholder,
   'raw:inspect': printRawAssetReport,
+  'raw:detect-symbols': detectRawSymbols,
   'raw:optimize-image': optimizeRawImage,
   'raw:slice-grid': sliceRawGrid,
   validate: validateGame
@@ -85,6 +87,45 @@ async function optimizeRawImage(): Promise<void> {
   console.log(JSON.stringify(optimizedAssets, null, 2));
 }
 
+async function detectRawSymbols(): Promise<void> {
+  const [outputDir, namePrefix, threshold, minArea, padding] = args;
+  if (!outputDir || !namePrefix) {
+    throw new Error('Usage: ilc raw:detect-symbols <inputPath> <outputDir> <namePrefix> [threshold] [minArea] [padding]');
+  }
+
+  const cliArgs = [
+    'run',
+    '-p',
+    'coconut-vision-cli',
+    '--',
+    'crop',
+    firstArg,
+    outputDir,
+    namePrefix
+  ];
+
+  if (threshold) cliArgs.push('--threshold', threshold);
+  if (minArea) cliArgs.push('--min-area', minArea);
+  if (padding) cliArgs.push('--padding', padding);
+
+  await runCargo(cliArgs);
+}
+
+async function runCargo(args: string[]): Promise<void> {
+  await new Promise<void>((resolve, reject) => {
+    const child = spawn('cargo', args, { stdio: 'inherit' });
+    child.once('error', reject);
+    child.once('exit', (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+
+      reject(new Error(`cargo ${args.join(' ')} exited with code ${code ?? 'unknown'}.`));
+    });
+  });
+}
+
 function showPreviewPlaceholder(): void {
   console.log('Preview command placeholder. Use: pnpm dev:pixi and pass ?game=fruit-classic&fixture=small-win');
 }
@@ -100,6 +141,7 @@ Commands:
   validate <gameDir>
   manifest <gameDir>
   raw:inspect <rawAssetsDir>
+  raw:detect-symbols <inputPath> <outputDir> <namePrefix> [threshold] [minArea] [padding]
   raw:slice-grid <inputPath> <outputDir> <columns> <rows> [namePrefix]
   raw:optimize-image <inputPath> <outputDir> <assetId> [width]
   preview <gameDir> --target pixi

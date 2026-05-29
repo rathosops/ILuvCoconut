@@ -45,7 +45,7 @@ services:
     build:
       context: .
       target: quality
-    command: sh -lc "pnpm typecheck && pnpm lint:ci && pnpm validate"
+    command: sh -lc "pnpm quality"
     profiles:
       - tools
 

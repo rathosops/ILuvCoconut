@@ -21,6 +21,7 @@
 - oxipng: https://github.com/oxipng/oxipng
 - Tauri v2 Architecture: https://v2.tauri.app/concept/architecture/
 - Tauri v2 Prerequisites: https://v2.tauri.app/start/prerequisites/
+- Tauri v2 Calling Rust: https://v2.tauri.app/es/develop/calling-rust/
 - Tauri WebView Versions: https://v2.tauri.app/reference/webview-versions/
 - Tauri Configuration: https://v2.tauri.app/reference/config/
 - WRY WebView library: https://github.com/tauri-apps/wry
@@ -30,6 +31,12 @@
 - OpenCV.js Usage: https://docs.opencv.org/4.x/d0/d84/tutorial_js_usage.html
 - OpenCV.js Thresholding: https://docs.opencv.org/3.4/d7/dd0/tutorial_js_thresholding.html
 - ImageMagick Connected Components: https://imagemagick.org/connected-components/
+- Cargo Workspaces: https://doc.rust-lang.org/cargo/reference/workspaces.html
+- image-rs: https://www.image-rs.org/image/image/
+- imageproc: https://docs.rs/imageproc/latest/imageproc/
+- imageproc region labelling: https://docs.rs/imageproc/latest/imageproc/region_labelling/
+- serde: https://serde.rs/
+- clap: https://docs.rs/clap/latest/clap/
 - MarchingSquares.js: https://github.com/RaumZeit/MarchingSquares.js/
 - ESLint no-magic-numbers: https://eslint.org/docs/latest/rules/no-magic-numbers
 - ESLint max-lines: https://eslint.org/docs/latest/rules/max-lines

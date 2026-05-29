@@ -32,6 +32,7 @@ O ILuvCoconut cuida de:
 - criação de cenas/reels/símbolos;
 - configuração de jogos;
 - assets e manifests;
+- detecção e crop de símbolos brutos via Coconut Vision;
 - fixtures e mocks;
 - build web;
 - QA visual;

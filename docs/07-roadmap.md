@@ -3,6 +3,7 @@
 ## MVP 0.1
 
 - Monorepo TypeScript.
+- Workspace Rust inicial.
 - Contratos iniciais.
 - Renderer API.
 - Core runtime.
@@ -10,6 +11,7 @@
 - Pixi renderer inicial.
 - Cocos adapter placeholder.
 - CLI inicial.
+- Coconut Vision inicial para detecção/crop de símbolos.
 - Jogo `fruit-classic`.
 - Documentação técnica.
 
@@ -18,6 +20,8 @@
 - Symbol pooling real.
 - Reels visuais reais no Pixi.
 - Asset manifest gerado em arquivo.
+- Fixtures reais para Coconut Vision com casos `8/8/9`, fundo sólido e fundo gradiente.
+- Debug overlay de detecção/crop no Studio.
 - Fixture selector.
 - Debug overlay.
 - Layout responsivo.
@@ -44,5 +48,6 @@
 - Slot 5x3 production-ready.
 - Factory CLI completa.
 - Asset pipeline completo.
+- Coconut Vision com métricas, debug masks e regressão visual.
 - CI/CD staging/prod.
 - Documentação de criação de novos jogos.

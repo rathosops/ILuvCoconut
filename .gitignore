@@ -5,7 +5,9 @@ screenshoot-*
 dist/
 build/
 coverage/
+target/
 *.tsbuildinfo
+*.log
 packages/*/src/*.js
 packages/*/src/*.js.map
 packages/*/src/*.d.ts
@@ -27,3 +29,6 @@ apps/player-cocos/temp/
 apps/player-cocos/build/
 apps/player-cocos/local/
 apps/coconut-studio/src-tauri/target/
+apps/coconut-studio/src-tauri/gen/
+apps/coconut-studio/src-tauri/icons/*.icns
+apps/coconut-studio/src-tauri/icons/*.ico

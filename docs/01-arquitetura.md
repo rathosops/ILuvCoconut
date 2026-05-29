@@ -28,6 +28,25 @@ Coconut Pixi       Coconut Cocos
 | `@iluvcoconut/cli` | Comandos `ilc` |
 | `@iluvcoconut/test-tools` | Testes, fixtures, smoke e validações |
 
+## Coconut Vision
+
+O projeto passa a adotar `coconut-vision` como nucleo Rust compartilhado para deteccao e crop de figuras em assets brutos.
+
+```txt
+Coconut Studio (TypeScript)
+      |
+      v
+Tauri command
+      |
+      v
+coconut-vision (Rust)
+      ^
+      |
+coconut-vision-cli / ilc raw:detect-symbols
+```
+
+O detector TypeScript do Studio continua sendo o caminho de preview rapido. O `coconut-vision` sera o caminho de producao para deteccao reprodutivel, batch, crop final e testes isolados. A decisao completa esta em `docs/17-sdd-coconut-vision.md`.
+
 ## Runtime
 
 O `SlotRuntime` coordena:
