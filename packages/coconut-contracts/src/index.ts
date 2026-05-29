@@ -50,7 +50,17 @@ export interface CoconutAsset {
   id: string;
   type: 'image' | 'audio' | 'json' | 'font' | 'atlas' | 'spine';
   src: string;
+  variants?: CoconutAssetVariant[];
   scope: 'boot' | 'base' | 'feature' | 'lazy';
+}
+
+export interface CoconutAssetVariant {
+  format: 'avif' | 'webp' | 'png' | 'jpg' | 'mp3' | 'ogg' | 'opus' | 'm4a';
+  src: string;
+  mimeType: string;
+  width?: number;
+  height?: number;
+  bytes?: number;
 }
 
 export interface SpinRequest {

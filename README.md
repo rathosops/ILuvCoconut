@@ -56,6 +56,7 @@ pnpm validate   # valida configs do jogo de exemplo
 pnpm build:pixi # build web oficial Linux-first
 pnpm quality    # typecheck, lint:ci e validate
 pnpm assets:inspect-raw # inspeciona raw-assets local
+pnpm assets:optimize-image <input> <outputDir> <assetId> [width]
 ```
 
 A esteira principal roda em GitHub Actions com install, typecheck, lint, validação e build Pixi. Em ambientes limpos, `typecheck` roda antes do lint para gerar os artefatos `dist` usados pelos manifests dos pacotes workspace. O Dependabot monitora GitHub Actions e dependências npm/pnpm do workspace.

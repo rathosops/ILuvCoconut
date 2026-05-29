@@ -16,6 +16,7 @@
     "dev:pixi": "pnpm --filter @iluvcoconut/player-pixi dev",
     "build:pixi": "pnpm --filter @iluvcoconut/player-pixi build",
     "assets:inspect-raw": "pnpm ilc raw:inspect raw-assets",
+    "assets:optimize-image": "pnpm ilc raw:optimize-image",
     "docker:dev": "docker compose up player-pixi",
     "docker:quality": "docker compose --profile tools run --rm quality",
     "docker:build": "docker build --target production -t iluvcoconut/player-pixi:local .",

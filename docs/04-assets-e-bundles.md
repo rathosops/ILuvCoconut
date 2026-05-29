@@ -62,6 +62,7 @@ O pipeline inicial suporta inspeção e fatiamento por grid de spritesheets rast
 pnpm assets:inspect-raw
 pnpm ilc raw:inspect raw-assets
 pnpm ilc raw:slice-grid raw-assets/default-base-slot/source.jpg games/fruit-classic/assets/raw/symbols 5 3 fruit-classic
+pnpm assets:optimize-image raw-assets/default-base-slot/source.jpg games/fruit-classic/assets/optimized/pixi symbol-test 512
 ```
 
 `raw:slice-grid` gera PNGs separados usando:
@@ -71,6 +72,8 @@ pnpm ilc raw:slice-grid raw-assets/default-base-slot/source.jpg games/fruit-clas
 - `trim` de borda;
 - tentativa controlada de remover fundo branco com alpha.
 
+`raw:optimize-image` gera variantes AVIF, WebP e PNG otimizado. PNG não deve ser a primeira escolha para runtime web quando AVIF/WebP mantiverem qualidade visual com menos bytes.
+
 Fundos complexos, sombras acopladas ao fundo, símbolos parcialmente sobrepostos ou imagens com iluminação irregular exigem uma etapa manual, ferramenta artística ou modelo de segmentação antes de entrar no pipeline automático. A automação do ILuvCoconut não deve mascarar asset ruim como se fosse asset pronto.
 
 ## Regras para spritesheets
@@ -78,6 +81,7 @@ Fundos complexos, sombras acopladas ao fundo, símbolos parcialmente sobrepostos
 - Preferir sprites em grade regular quando o arquivo vier como imagem única.
 - Manter margem e espaçamento consistentes entre células.
 - Exportar símbolos finais com alpha real em PNG quando houver transparência.
+- Converter runtime para AVIF/WebP e manter PNG como fallback ou fonte intermediária.
 - Preservar sombras e brilhos como camadas ou efeitos separados quando forem reutilizáveis.
 - Nomear símbolos com IDs estáveis, em minúsculas e sem espaços.
 - Gerar atlas com padding/extrude para evitar vazamento de pixels em escala, mipmap ou movimento.

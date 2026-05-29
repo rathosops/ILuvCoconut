@@ -1,4 +1,4 @@
-import { access, mkdir, readFile, readdir } from 'node:fs/promises';
+import { access, mkdir, readFile, readdir, stat } from 'node:fs/promises';
 import { basename, extname, join } from 'node:path';
 import sharp from 'sharp';
 import type { CoconutAssetManifest, GameConfig, ThemeConfig } from '@iluvcoconut/contracts';
@@ -7,6 +7,7 @@ const supportedRasterExtensions = new Set(['.avif', '.jpeg', '.jpg', '.png', '.t
 
 export type RawAssetSourceStatus = 'supported' | 'unsupported';
 export type RawBackgroundRemovalMode = 'none' | 'white';
+export type OptimizedRasterFormat = 'avif' | 'webp' | 'png';
 
 export interface RawAssetSourceReport {
   path: string;
@@ -43,6 +44,25 @@ export interface SlicedAsset {
     width: number;
     height: number;
   };
+}
+
+export interface OptimizeRasterAssetOptions {
+  inputPath: string;
+  outputDir: string;
+  assetId: string;
+  formats?: OptimizedRasterFormat[];
+  width?: number;
+  avifQuality?: number;
+  webpQuality?: number;
+}
+
+export interface OptimizedRasterAsset {
+  format: OptimizedRasterFormat;
+  mimeType: string;
+  path: string;
+  width?: number;
+  height?: number;
+  bytes: number;
 }
 
 export async function readJsonFile<T>(path: string): Promise<T> {
@@ -144,6 +164,49 @@ export async function sliceRawSpriteSheet(options: RawSpriteSheetSliceOptions): 
   return slicedAssets;
 }
 
+export async function optimizeRasterAsset(options: OptimizeRasterAssetOptions): Promise<OptimizedRasterAsset[]> {
+  const formats = options.formats ?? ['avif', 'webp', 'png'];
+  await mkdir(options.outputDir, { recursive: true });
+
+  const outputs: OptimizedRasterAsset[] = [];
+
+  for (const format of formats) {
+    const outputPath = join(options.outputDir, `${sanitizeAssetId(options.assetId)}.${format}`);
+    let pipeline = sharp(options.inputPath).rotate();
+
+    if (options.width) {
+      pipeline = pipeline.resize({ width: options.width, withoutEnlargement: true });
+    }
+
+    switch (format) {
+      case 'avif':
+        pipeline = pipeline.avif({ quality: options.avifQuality ?? 52, effort: 6 });
+        break;
+      case 'webp':
+        pipeline = pipeline.webp({ quality: options.webpQuality ?? 78, effort: 5, alphaQuality: 85 });
+        break;
+      case 'png':
+        pipeline = pipeline.png({ compressionLevel: 9, palette: true });
+        break;
+      default:
+        format satisfies never;
+    }
+
+    const info = await pipeline.toFile(outputPath);
+    const fileStats = await stat(outputPath);
+    outputs.push({
+      format,
+      mimeType: mimeTypeForRasterFormat(format),
+      path: outputPath,
+      width: info.width,
+      height: info.height,
+      bytes: fileStats.size
+    });
+  }
+
+  return outputs;
+}
+
 export async function buildAssetManifest(gameDir: string): Promise<CoconutAssetManifest> {
   const config = await readJsonFile<GameConfig>(join(gameDir, 'game.config.json'));
   const theme = await readJsonFile<ThemeConfig>(join(gameDir, 'theme.config.json'));
@@ -203,4 +266,18 @@ function sanitizeAssetId(value: string): string {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+function mimeTypeForRasterFormat(format: OptimizedRasterFormat): string {
+  switch (format) {
+    case 'avif':
+      return 'image/avif';
+    case 'webp':
+      return 'image/webp';
+    case 'png':
+      return 'image/png';
+    default:
+      format satisfies never;
+      return 'application/octet-stream';
+  }
 }

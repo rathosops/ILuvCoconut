@@ -2,6 +2,7 @@
 import {
   buildAssetManifest,
   listRawAssetSources,
+  optimizeRasterAsset,
   sliceRawSpriteSheet,
   validateGameDirectory
 } from '@iluvcoconut/asset-pipeline';
@@ -49,6 +50,21 @@ async function main(): Promise<void> {
       console.log(JSON.stringify(slicedAssets, null, 2));
       break;
     }
+    case 'raw:optimize-image': {
+      const [outputDir, assetId, width] = args;
+      if (!outputDir || !assetId) {
+        throw new Error('Usage: ilc raw:optimize-image <inputPath> <outputDir> <assetId> [width]');
+      }
+
+      const optimizeOptions = {
+        inputPath: firstArg,
+        outputDir,
+        assetId
+      };
+      const optimizedAssets = await optimizeRasterAsset(width ? { ...optimizeOptions, width: Number(width) } : optimizeOptions);
+      console.log(JSON.stringify(optimizedAssets, null, 2));
+      break;
+    }
     case 'preview': {
       console.log('Preview command placeholder. Use: pnpm dev:pixi and pass ?game=fruit-classic&fixture=small-win');
       break;
@@ -65,6 +81,7 @@ Commands:
   manifest <gameDir>
   raw:inspect <rawAssetsDir>
   raw:slice-grid <inputPath> <outputDir> <columns> <rows> [namePrefix]
+  raw:optimize-image <inputPath> <outputDir> <assetId> [width]
   preview <gameDir> --target pixi
   build <gameDir> --target pixi|cocos
 `);

@@ -56,6 +56,10 @@ FPS:
 
 Para PixiJS, o projeto deve priorizar spritesheets, ordem de renderização favorável a batching, `antialias: false`, controle de resolução e descarte explícito de recursos fora de momentos críticos.
 
+Imagens finais do runtime devem preferir AVIF/WebP com fallback PNG apenas quando necessário. PNG é útil na autoria e em casos de alpha sem perdas, mas pode prejudicar download, decode e memória quando usado como formato padrão para tudo.
+
 ## Cocos
 
 Para Cocos, usar Asset Bundles para reduzir carregamento inicial, separar assets comuns de assets por jogo, e preferir bundles remotos/versionados quando a estratégia de deploy exigir CDN.
+
+Veja também: `docs/12-performance-assets-web.md`.
