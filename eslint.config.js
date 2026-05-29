@@ -74,6 +74,23 @@ export default tseslint.config(
           enforceConst: true
         }
       ],
+      'max-lines': [
+        'warn',
+        {
+          max: 300,
+          skipBlankLines: true,
+          skipComments: true
+        }
+      ],
+      'max-lines-per-function': [
+        'warn',
+        {
+          max: 90,
+          skipBlankLines: true,
+          skipComments: true
+        }
+      ],
+      complexity: ['warn', { max: 12 }],
       '@typescript-eslint/restrict-template-expressions': [
         'error',
         {
@@ -81,6 +98,12 @@ export default tseslint.config(
           allowNumber: true
         }
       ]
+    }
+  },
+  {
+    files: ['**/*Constants.ts'],
+    rules: {
+      'no-magic-numbers': 'off'
     }
   },
   {

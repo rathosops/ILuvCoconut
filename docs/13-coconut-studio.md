@@ -62,6 +62,17 @@ No Linux, instalar os pré-requisitos do Tauri, incluindo WebKitGTK.
 
 O canvas é usado para interação visual. DOM/CSS continuam responsáveis por controles, inputs e navegação para manter acessibilidade e performance.
 
+O código do Studio é dividido por responsabilidade para evitar arquivos colossais:
+
+- `main.ts`: orquestra estado, eventos e chamadas de alto nível.
+- `studioTemplate.ts`: mantém o HTML estático da interface.
+- `dom.ts`: centraliza helpers de DOM e criação de contexto 2D.
+- `frameMath.ts`: calcula grids, bounding boxes, seleção e posicionamento no canvas.
+- `imageDetection.ts`: executa a heurística leve de máscara e componentes conectados.
+- `opencv.ts`: carrega e usa OpenCV.js sob demanda.
+- `canvasRenderer.ts`: desenha imagem, overlays, checkerboard e preview.
+- `exportPlan.ts`: monta o plano JSON para integração com o pipeline.
+
 ## Detecção inteligente
 
 O Studio usa uma heurística leve no browser:

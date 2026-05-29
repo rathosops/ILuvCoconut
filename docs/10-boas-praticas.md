@@ -42,11 +42,27 @@ export class WinPresentationPlanner {
 - Não ignorar erros do TypeScript sem uma justificativa curta e verificável.
 - Rodar `pnpm lint`, `pnpm typecheck` e `pnpm validate` antes de abrir PR.
 
+## Organização de módulos
+
+Arquivos TypeScript devem ser pequenos o suficiente para leitura, revisão e teste local. Use módulos ES por responsabilidade, seguindo a organização recomendada pelo Handbook do TypeScript: cada arquivo deve exportar uma superfície clara e importar apenas o que precisa.
+
+Regras práticas do projeto:
+
+- Evitar arquivos com mais de 300 linhas não vazias/não comentadas.
+- Evitar funções com mais de 90 linhas não vazias/não comentadas.
+- Evitar funções com complexidade ciclomática acima de 12.
+- Quebrar por responsabilidade antes de criar abstrações genéricas: DOM, renderização, cálculo, IO, detecção, validação e contratos devem ficar separados quando crescerem.
+- Não criar módulos "utils" genéricos para esconder acoplamento. Prefira nomes de domínio como `frameMath`, `imageDetection`, `canvasRenderer` e `exportPlan`.
+- Exportar funções pequenas e testáveis; manter o arquivo de entrada como orquestrador.
+- Se um arquivo ultrapassar o limite por conter template estático ou constantes, extraia o template/constantes para módulos dedicados em vez de misturar lógica.
+
 ## ESLint
 
 A configuração do projeto usa ESLint flat config com regras TypeScript type-aware. A intenção é bloquear problemas de contrato, promises esquecidas, imports de tipo incorretos e funções exportadas sem retorno explícito.
 
 `no-magic-numbers` roda como warning e `lint:ci` falha com warnings. Exceções pequenas como `0`, `1`, `2` e índices de array são permitidas; valores de negócio, dimensões, thresholds, budgets e qualidade devem ter nomes explícitos.
+
+`max-lines`, `max-lines-per-function` e `complexity` também rodam como warnings para impedir arquivos colossais, funções extensas e lógica difícil de revisar. Quando um warning aparecer, a correção preferida é extrair uma responsabilidade nomeada, não apenas aumentar o limite.
 
 Comandos:
 

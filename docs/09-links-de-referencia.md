@@ -32,6 +32,11 @@
 - ImageMagick Connected Components: https://imagemagick.org/connected-components/
 - MarchingSquares.js: https://github.com/RaumZeit/MarchingSquares.js/
 - ESLint no-magic-numbers: https://eslint.org/docs/latest/rules/no-magic-numbers
+- ESLint max-lines: https://eslint.org/docs/latest/rules/max-lines
+- ESLint max-lines-per-function: https://eslint.org/docs/latest/rules/max-lines-per-function
+- ESLint complexity: https://eslint.org/docs/latest/rules/complexity
+- TypeScript Handbook Modules: https://www.typescriptlang.org/docs/handbook/2/modules.html
+- TypeScript Handbook Modules Theory: https://www.typescriptlang.org/docs/handbook/modules/theory.html
 - TypeScript TSConfig Reference: https://www.typescriptlang.org/tsconfig/
 - ESLint Configuration Files: https://eslint.org/docs/latest/use/configure/configuration-files
 - typescript-eslint Typed Linting: https://typescript-eslint.io/getting-started/typed-linting/

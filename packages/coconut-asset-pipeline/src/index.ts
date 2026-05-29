@@ -48,6 +48,16 @@ export interface SlicedAsset {
   };
 }
 
+interface SliceGridPlan {
+  frameHeight: number;
+  frameWidth: number;
+  gapX: number;
+  gapY: number;
+  marginX: number;
+  marginY: number;
+  namePrefix: string;
+}
+
 export interface OptimizeRasterAssetOptions {
   inputPath: string;
   outputDir: string;
@@ -118,12 +128,27 @@ export async function sliceRawSpriteSheet(options: RawSpriteSheetSliceOptions): 
     throw new Error(`Unable to read dimensions from ${options.inputPath}.`);
   }
 
+  const grid = createSliceGridPlan(options, metadata.width, metadata.height);
+  await mkdir(options.outputDir, { recursive: true });
+
+  const slicedAssets: SlicedAsset[] = [];
+
+  for (let row = 0; row < options.rows; row += 1) {
+    for (let column = 0; column < options.columns; column += 1) {
+      slicedAssets.push(await sliceRawSprite(options, grid, row, column));
+    }
+  }
+
+  return slicedAssets;
+}
+
+function createSliceGridPlan(options: RawSpriteSheetSliceOptions, imageWidth: number, imageHeight: number): SliceGridPlan {
   const marginX = options.marginX ?? 0;
   const marginY = options.marginY ?? 0;
   const gapX = options.gapX ?? 0;
   const gapY = options.gapY ?? 0;
-  const availableWidth = metadata.width - marginX * 2 - gapX * (options.columns - 1);
-  const availableHeight = metadata.height - marginY * 2 - gapY * (options.rows - 1);
+  const availableWidth = imageWidth - marginX * 2 - gapX * (options.columns - 1);
+  const availableHeight = imageHeight - marginY * 2 - gapY * (options.rows - 1);
   const frameWidth = Math.floor(availableWidth / options.columns);
   const frameHeight = Math.floor(availableHeight / options.rows);
 
@@ -131,39 +156,46 @@ export async function sliceRawSpriteSheet(options: RawSpriteSheetSliceOptions): 
     throw new Error('Invalid grid: calculated frame dimensions must be positive.');
   }
 
-  await mkdir(options.outputDir, { recursive: true });
+  return {
+    frameHeight,
+    frameWidth,
+    gapX,
+    gapY,
+    marginX,
+    marginY,
+    namePrefix: sanitizeAssetId(options.namePrefix ?? basename(options.inputPath, extname(options.inputPath)))
+  };
+}
 
-  const namePrefix = sanitizeAssetId(options.namePrefix ?? basename(options.inputPath, extname(options.inputPath)));
-  const slicedAssets: SlicedAsset[] = [];
+async function sliceRawSprite(options: RawSpriteSheetSliceOptions, grid: SliceGridPlan, row: number, column: number): Promise<SlicedAsset> {
+  const id = `${grid.namePrefix}-${row + 1}-${column + 1}`;
+  const x = grid.marginX + column * (grid.frameWidth + grid.gapX);
+  const y = grid.marginY + row * (grid.frameHeight + grid.gapY);
+  const outputPath = join(options.outputDir, `${id}.png`);
+  const pipeline = createRawSpritePipeline(options, x, y, grid.frameWidth, grid.frameHeight);
 
-  for (let row = 0; row < options.rows; row += 1) {
-    for (let column = 0; column < options.columns; column += 1) {
-      const id = `${namePrefix}-${row + 1}-${column + 1}`;
-      const x = marginX + column * (frameWidth + gapX);
-      const y = marginY + row * (frameHeight + gapY);
-      const outputPath = join(options.outputDir, `${id}.png`);
-      let pipeline = sharp(options.inputPath)
-        .extract({ left: x, top: y, width: frameWidth, height: frameHeight })
-        .rotate();
+  await pipeline.png({ compressionLevel: 9 }).toFile(outputPath);
+  return {
+    id,
+    path: outputPath,
+    frame: { column, row, x, y, width: grid.frameWidth, height: grid.frameHeight }
+  };
+}
 
-      if (options.removeBackground === 'white') {
-        pipeline = pipeline.unflatten();
-      }
+function createRawSpritePipeline(options: RawSpriteSheetSliceOptions, x: number, y: number, width: number, height: number): sharp.Sharp {
+  let pipeline = sharp(options.inputPath)
+    .extract({ left: x, top: y, width, height })
+    .rotate();
 
-      if (options.trim ?? true) {
-        pipeline = pipeline.trim();
-      }
-
-      await pipeline.png({ compressionLevel: 9 }).toFile(outputPath);
-      slicedAssets.push({
-        id,
-        path: outputPath,
-        frame: { column, row, x, y, width: frameWidth, height: frameHeight }
-      });
-    }
+  if (options.removeBackground === 'white') {
+    pipeline = pipeline.unflatten();
   }
 
-  return slicedAssets;
+  if (options.trim ?? true) {
+    pipeline = pipeline.trim();
+  }
+
+  return pipeline;
 }
 
 export async function optimizeRasterAsset(options: OptimizeRasterAssetOptions): Promise<OptimizedRasterAsset[]> {
