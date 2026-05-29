@@ -67,5 +67,4 @@ export const STATUS_READY = 'Pronto';
 export const GRID_MODE = 'grid';
 export const DETECTED_MODE = 'detected';
 export const HEURISTIC_BACKEND = 'heuristic';
-export const OPENCV_BACKEND = 'opencv';
 export const COCONUT_VISION_BACKEND = 'coconutVision';

@@ -40,6 +40,15 @@ interface CoconutVisionSummary {
   elapsedMs: number;
 }
 
+interface TauriInternals {
+  invoke: <T>(command: string, args?: Record<string, unknown>) => Promise<T>;
+}
+
+interface TauriGlobal {
+  __TAURI_INTERNALS__?: TauriInternals;
+  isTauri?: boolean;
+}
+
 export interface CoconutVisionDetectionResult {
   frames: FrameRect[];
   summary: DetectionSummary;
@@ -51,7 +60,7 @@ export async function detectFiguresWithCoconutVision(
   threshold: number,
   minArea: number
 ): Promise<CoconutVisionDetectionResult> {
-  const { invoke } = await import('@tauri-apps/api/core');
+  const invoke = getTauriInvoke();
   const request = createCoconutVisionRequest(image, threshold, minArea);
   const response = await invoke<CoconutVisionResponse>('detect_symbols', { request });
 
@@ -74,6 +83,14 @@ export async function detectFiguresWithCoconutVision(
       elapsedMs: response.summary.elapsedMs
     }
   };
+}
+
+function getTauriInvoke(): TauriInternals['invoke'] {
+  const tauriGlobal = globalThis as TauriGlobal;
+  if (!tauriGlobal.isTauri || !tauriGlobal.__TAURI_INTERNALS__?.invoke) {
+    throw new Error('Coconut Vision requer o runtime Tauri.');
+  }
+  return tauriGlobal.__TAURI_INTERNALS__.invoke;
 }
 
 function createCoconutVisionRequest(image: HTMLImageElement, threshold: number, minArea: number): CoconutVisionRequest {

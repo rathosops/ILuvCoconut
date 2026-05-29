@@ -21,7 +21,7 @@ Fora desta primeira fase:
 - segmentacao neural obrigatoria;
 - remocao perfeita de fundos artisticos complexos;
 - classificacao semantica do simbolo;
-- dependencia obrigatoria de OpenCV no browser.
+- dependencias de visao computacional no browser.
 
 ## Arquitetura
 
@@ -68,7 +68,7 @@ O browser e responsavel por resposta rapida e edicao visual. `coconut-vision` se
 ## Contratos
 
 ```ts
-type DetectionBackend = 'heuristic' | 'opencv' | 'coconutVision';
+type DetectionBackend = 'heuristic' | 'coconutVision';
 
 interface DetectedSymbol {
   id: string;
@@ -113,8 +113,9 @@ O `FrameRect` atual pode continuar alimentando canvas/preview. A evolucao deve m
    - fila prealocada;
    - filtro por area minima escalada.
 6. Merge:
-   - unir componentes que se sobrepoem apos padding relativo;
-   - repetir ate estabilizar para juntar partes separadas do mesmo simbolo.
+   - unir acessorios pequenos proximos ao corpo principal do simbolo;
+   - evitar unir dois componentes grandes apenas por proximidade de bounding box;
+   - repetir ate estabilizar para juntar partes separadas do mesmo simbolo sem fundir simbolos vizinhos.
 7. Agrupamento por linhas:
    - ordenar por centro Y;
    - clusterizar por tolerancia baseada na altura mediana;
@@ -122,7 +123,7 @@ O `FrameRect` atual pode continuar alimentando canvas/preview. A evolucao deve m
    - reindexar frames com `row` e `column`, permitindo contagem variavel por linha.
 8. Feedback:
    - exibir `N figuras em M linhas (a/b/c)`;
-   - indicar fallback quando OpenCV falhar;
+   - indicar fallback quando o backend Rust estiver indisponivel no browser;
    - manter overlay desenhado imediatamente apos a deteccao.
 
 ## Pipeline coconut-vision
@@ -164,7 +165,7 @@ O feedback deve ser curto e operacional:
 - durante execucao: `Detectando figuras...`;
 - sucesso: `25 figuras em 3 linhas (8/8/9) com heuristic.`;
 - producao: `25 figuras em 3 linhas (8/8/9) com coconut-vision.`;
-- fallback: `OpenCV indisponivel; fallback leve usado. 25 figuras em 3 linhas (8/8/9).`;
+- fallback: `Coconut Vision indisponivel; fallback leve usado. 25 figuras em 3 linhas (8/8/9).`;
 - vazio: `Nenhuma figura encontrada. Ajuste tolerancia ou area minima.`;
 - erro real: mensagem curta, sem stack trace.
 
@@ -179,6 +180,7 @@ Criar fixtures pequenas e deterministicas para:
 - linhas 8/8/9;
 - simbolo separado em multiplas partes;
 - simbolos proximos mas distintos;
+- componentes grandes proximos na mesma linha, como uva e banana, nao sao fundidos;
 - ruido pequeno removido por area/morfologia.
 
 Testes unitarios prioritarios:
@@ -192,7 +194,7 @@ Testes unitarios prioritarios:
 
 1. Melhorar detector TypeScript atual com 8-neighbor, morfologia simples, merge iterativo e agrupamento por linhas.
 2. Melhorar status da UI com resumo de linhas.
-3. Corrigir OpenCV retry e kernel sem efeito.
+3. Remover backend legado do browser e manter Coconut Vision como caminho principal. Concluido.
 4. Adicionar worker para deteccao heuristica.
 5. Criar contratos `DetectedSymbol`/`DetectionSummary`.
 6. Criar crate `coconut-vision`. Concluido.
@@ -209,7 +211,6 @@ Testes unitarios prioritarios:
 - Vite workers: https://vite.dev/guide/features/
 - MDN Web Workers: https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API
 - MDN OffscreenCanvas: https://developer.mozilla.org/en-US/docs/Web/API/OffscreenCanvas
-- OpenCV.js usage: https://docs.opencv.org/4.x/d0/d84/tutorial_js_usage.html
 - sharp/libvips: https://sharp.pixelplumbing.com/
 - libvips morphology: https://www.libvips.org/API/8.16/libvips-morphology.html
 - Coconut Vision SDD: `docs/17-sdd-coconut-vision.md`

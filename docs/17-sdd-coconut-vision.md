@@ -47,7 +47,6 @@ Rust tambem e uma boa escolha porque:
 | Alternativa | O que faria | Beneficio | Custo/Risco | Decisao |
 |---|---|---|---|---|
 | So TypeScript/browser | Manter toda deteccao em Canvas/ImageData | Iteracao rapida e roda no navegador | Thread principal, menos previsivel para batch, dificil garantir crop final | Manter apenas como preview |
-| OpenCV.js | Usar OpenCV no browser | Operacoes CV prontas | CDN/WASM, heap, loading fragil, peso e divergencia entre ambientes | Backend opcional, nao principal |
 | Rust dentro de `src-tauri` | Implementar direto no app desktop | Mais rapido para Tauri | Algoritmo preso ao Studio, pouco reuso pelo CLI | Rejeitado como solucao final |
 | Rust sidecar | Chamar binario externo pelo Studio | Bom isolamento e batch | Empacotamento por plataforma, permissao shell, overhead de processo | Usar so se CLI precisar virar sidecar |
 | Rust N-API | Node chama Rust como modulo nativo | Bom para pipeline Node | Build/distribuicao nativa mais complexos, nao resolve Tauri sozinho | Adiar |
@@ -78,6 +77,16 @@ Nao deve:
 - escrever manifests de jogo diretamente;
 - decidir nomes finais de assets;
 - depender de paths fora dos parametros recebidos.
+
+## Refinamento de segmentacao
+
+O Coconut Vision usa componentes conectados como base, mas o merge nao deve transformar proximidade visual em um unico simbolo. A regra atual separa tres casos:
+
+- partes pequenas proximas ao corpo principal continuam sendo agregadas como acessorios;
+- dois componentes grandes proximos permanecem separados, mesmo que o padding de merge aproxime as caixas;
+- componentes muito proximos e com forte sobreposicao perpendicular ainda podem ser unidos para simbolos compostos.
+
+Esse comportamento mira folhas como `8/8/9`, em que uva e banana na segunda linha podem ficar perto por sombra/brilho, mas ainda precisam virar dois crops independentes. Para casos realmente encostados, a evolucao planejada e adicionar split por distancia/watershed antes do agrupamento final.
 
 ### Tauri wrapper
 
@@ -338,7 +347,7 @@ Entrega de producao:
 ### Positivo
 
 - um algoritmo compartilhado para Studio e pipeline;
-- menos dependencia de OpenCV.js/CDN;
+- menos dependencia de runtime externo no browser;
 - deteccao testavel fora do browser;
 - caminho claro para batch e crop final;
 - melhor performance previsivel para assets grandes;

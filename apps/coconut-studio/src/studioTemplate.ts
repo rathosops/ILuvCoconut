@@ -66,7 +66,6 @@ const STUDIO_SHELL_TEMPLATE = `
           <div class="segmented secondary">
             <button id="coconutVisionBackend" class="active" type="button">Coconut Vision</button>
             <button id="heuristicBackend" type="button">Leve</button>
-            <button id="opencvBackend" type="button">OpenCV</button>
           </div>
           <div class="tool-row">
             <button id="sampleBackground" type="button">Detectar fundo</button>

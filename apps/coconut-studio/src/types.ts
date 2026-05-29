@@ -1,5 +1,5 @@
 export type FrameMode = 'grid' | 'detected';
-export type DetectionBackend = 'heuristic' | 'opencv' | 'rust' | 'coconutVision';
+export type DetectionBackend = 'heuristic' | 'coconutVision';
 
 export interface CropGrid {
   columns: number;

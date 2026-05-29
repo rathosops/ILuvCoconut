@@ -2,8 +2,7 @@ const KERNEL_RADIUS: i32 = 1;
 
 pub(crate) fn clean_mask(mask: &[u8], width: u32, height: u32) -> Vec<u8> {
     let dilated = dilate(mask, width, height);
-    let eroded = erode(&dilated, width, height);
-    dilate(&eroded, width, height)
+    erode(&dilated, width, height)
 }
 
 fn erode(mask: &[u8], width: u32, height: u32) -> Vec<u8> {

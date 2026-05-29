@@ -70,7 +70,7 @@ O código do Studio é dividido por responsabilidade para evitar arquivos coloss
 - `dom.ts`: centraliza helpers de DOM e criação de contexto 2D.
 - `frameMath.ts`: calcula grids, bounding boxes, seleção e posicionamento no canvas.
 - `imageDetection.ts`: executa a heurística leve de máscara e componentes conectados.
-- `opencv.ts`: carrega e usa OpenCV.js sob demanda.
+- `coconutVision.ts`: chama o backend Rust quando o Studio roda no Tauri.
 - `canvasRenderer.ts`: desenha imagem, overlays, checkerboard e preview.
 - `exportPlan.ts`: monta o plano JSON para integração com o pipeline.
 
@@ -84,9 +84,7 @@ imagem -> canvas de análise -> amostra de fundo -> máscara foreground -> compo
 
 Essa abordagem é adequada para spritesheets com fundo relativamente uniforme, como a screenshot analisada na raiz do projeto. Ela permite encontrar figuras que não se encaixam perfeitamente em uma grade fixa, ou casos em que uma célula contém mais de um símbolo.
 
-O caminho de produção passa a ser o `coconut-vision`, uma crate Rust compartilhada entre Tauri e CLI. O detector TypeScript permanece como preview rápido no browser; o `coconut-vision` deve gerar resultado reprodutível, testável e adequado para crop final em alta resolução.
-
-Também existe backend OpenCV.js opcional, carregado sob demanda. Ele não entra no bundle inicial do Studio; o carregamento acontece apenas quando o usuário escolhe `OpenCV` e executa `Auto figuras`. Se o runtime não carregar, o Studio usa fallback leve. OpenCV.js não é o backend principal de produção.
+O caminho de produção é o `coconut-vision`, uma crate Rust compartilhada entre Tauri e CLI. O detector TypeScript permanece como preview rápido no browser; o `coconut-vision` gera resultado reprodutível, testável e adequado para crop final em alta resolução.
 
 Controles atuais:
 
@@ -96,7 +94,6 @@ Controles atuais:
 - `Auto figuras`: detecta regiões conectadas diferentes do fundo.
 - `Largura` e `Altura`: permitem dimensionar manualmente a célula do grid quando a divisão automática não encaixa.
 - `Leve`: usa heurística própria com `getImageData` e componentes conectados.
-- `OpenCV`: usa OpenCV.js para threshold, morfologia e componentes quando disponível.
 - `coconut-vision`: backend Rust via Tauri para detecção de produção, com fallback para a heurística TypeScript quando indisponível.
 
 Limites:
@@ -104,14 +101,13 @@ Limites:
 - fundo com gradiente forte pode exigir tolerância maior;
 - sombras muito parecidas com o fundo podem ser cortadas;
 - figuras encostadas podem virar uma única região;
-- remoção de fundo fina ainda deve ficar no pipeline `sharp`, OpenCV/WASM ou Rust.
+- remoção de fundo fina ainda deve ficar no pipeline `sharp`, WASM ou Rust.
 
 ## Evolução técnica
 
 Para avançar além da heurística leve:
 
 - `coconut-vision` como crate Rust compartilhada por Tauri e CLI;
-- manter OpenCV.js apenas como backend opcional/lazy, não como dependência principal;
 - Marching Squares para gerar contornos editáveis;
 - Web Worker ou OffscreenCanvas para não bloquear a UI;
 - Rust/WASM apenas como evolução futura caso o Studio web precise do mesmo núcleo sem Tauri;
