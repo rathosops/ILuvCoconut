@@ -76,7 +76,7 @@ pnpm validate   # valida configs do jogo de exemplo
 pnpm rust:test  # testes Rust do coconut-vision, CLI e Tauri
 pnpm build:pixi # build web oficial Linux-first
 pnpm build:studio # build da interface Studio
-pnpm quality    # typecheck, lint:ci e validate
+pnpm quality    # typecheck, lint:ci, validate e rust:test
 pnpm assets:inspect-raw # inspeciona raw-assets local
 pnpm assets:detect-symbols <input> <outputDir> <namePrefix> [threshold] [minArea] [padding]
 pnpm assets:optimize-image <input> <outputDir> <assetId> [width]
