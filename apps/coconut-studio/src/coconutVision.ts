@@ -46,7 +46,6 @@ interface TauriInternals {
 
 interface TauriGlobal {
   __TAURI_INTERNALS__?: TauriInternals;
-  isTauri?: boolean;
 }
 
 export interface CoconutVisionDetectionResult {
@@ -85,9 +84,14 @@ export async function detectFiguresWithCoconutVision(
   };
 }
 
+export function isCoconutVisionRuntimeAvailable(): boolean {
+  const tauriGlobal = globalThis as TauriGlobal;
+  return typeof tauriGlobal.__TAURI_INTERNALS__?.invoke === 'function';
+}
+
 function getTauriInvoke(): TauriInternals['invoke'] {
   const tauriGlobal = globalThis as TauriGlobal;
-  if (!tauriGlobal.isTauri || !tauriGlobal.__TAURI_INTERNALS__?.invoke) {
+  if (!isCoconutVisionRuntimeAvailable() || !tauriGlobal.__TAURI_INTERNALS__?.invoke) {
     throw new Error('Coconut Vision requer o runtime Tauri.');
   }
   return tauriGlobal.__TAURI_INTERNALS__.invoke;

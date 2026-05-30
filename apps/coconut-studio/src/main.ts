@@ -1,5 +1,5 @@
 import './styles.css';
-import { detectFiguresWithCoconutVision } from './coconutVision';
+import { detectFiguresWithCoconutVision, isCoconutVisionRuntimeAvailable } from './coconutVision';
 import { drawStudioCanvas } from './canvasRenderer';
 import { getCanvasContext, getElement, getInputTarget } from './dom';
 import { createExportPlan } from './exportPlan';
@@ -7,7 +7,6 @@ import { frameAtPointer, getFrames } from './frameMath';
 import { detectFiguresWithHeuristic, sampleBackgroundColor } from './imageDetection';
 import {
   DEFAULT_BACKGROUND_COLOR,
-  DEFAULT_DETECTION_BACKEND,
   DEFAULT_DETECTION_MIN_AREA,
   DEFAULT_DETECTION_THRESHOLD,
   DEFAULT_GRID,
@@ -37,7 +36,7 @@ const state: StudioState = {
   backgroundColor: DEFAULT_BACKGROUND_COLOR,
   detectionThreshold: DEFAULT_DETECTION_THRESHOLD,
   detectionMinArea: DEFAULT_DETECTION_MIN_AREA,
-  detectionBackend: DEFAULT_DETECTION_BACKEND,
+  detectionBackend: getInitialDetectionBackend(),
   detectedFrames: [],
   detectionSummary: undefined
 };
@@ -117,6 +116,9 @@ sheetCanvas.addEventListener('pointerdown', (event) => {
   draw();
 });
 
+syncFrameModeButtons();
+syncDetectionBackendButtons();
+setInitialRuntimeStatus();
 draw();
 
 function bindNumberInput(id: string, onValue: (value: number) => void): void {
@@ -182,21 +184,54 @@ async function detectFigures(): Promise<void> {
 async function detectFiguresWithPreferredBackend(): Promise<{ frames: FrameRect[]; summary: DetectionSummary }> {
   if (!state.image) return { frames: [], summary: createEmptySummary() };
   if (state.detectionBackend === HEURISTIC_BACKEND) return detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
+  if (!isCoconutVisionRuntimeAvailable()) return detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
   return detectFiguresWithCoconutVision(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
 }
 
 function setFrameMode(mode: FrameMode): void {
   state.frameMode = mode;
   state.selectedFrame = Math.min(state.selectedFrame, Math.max(MIN_NUMERIC_INPUT, getFrames(state).length - MIN_COUNT_INPUT));
-  getElement<HTMLButtonElement>('gridMode').classList.toggle('active', mode === GRID_MODE);
-  getElement<HTMLButtonElement>('detectedMode').classList.toggle('active', mode === DETECTED_MODE);
+  syncFrameModeButtons();
   draw();
 }
 
 function setDetectionBackend(backend: DetectionBackend): void {
+  if (backend === COCONUT_VISION_BACKEND && !isCoconutVisionRuntimeAvailable()) {
+    state.detectionBackend = HEURISTIC_BACKEND;
+    syncDetectionBackendButtons();
+    setStatus('Coconut Vision esta disponivel somente no app Tauri. Usando detector leve.');
+    return;
+  }
+
   state.detectionBackend = backend;
-  getElement<HTMLButtonElement>('coconutVisionBackend').classList.toggle('active', backend === COCONUT_VISION_BACKEND);
-  getElement<HTMLButtonElement>('heuristicBackend').classList.toggle('active', backend === HEURISTIC_BACKEND);
+  syncDetectionBackendButtons();
+}
+
+function syncFrameModeButtons(): void {
+  setSegmentedButtonState('gridMode', state.frameMode === GRID_MODE);
+  setSegmentedButtonState('detectedMode', state.frameMode === DETECTED_MODE);
+}
+
+function syncDetectionBackendButtons(): void {
+  const coconutVisionButton = getElement<HTMLButtonElement>('coconutVisionBackend');
+  coconutVisionButton.disabled = !isCoconutVisionRuntimeAvailable();
+  coconutVisionButton.title = isCoconutVisionRuntimeAvailable()
+    ? 'Detecta figuras com o backend Rust do app Tauri.'
+    : 'Disponivel somente no app Tauri.';
+  setSegmentedButtonState('coconutVisionBackend', state.detectionBackend === COCONUT_VISION_BACKEND);
+  setSegmentedButtonState('heuristicBackend', state.detectionBackend === HEURISTIC_BACKEND);
+}
+
+function setSegmentedButtonState(id: string, active: boolean): void {
+  const button = getElement<HTMLButtonElement>(id);
+  button.classList.toggle('active', active);
+  button.setAttribute('aria-pressed', String(active));
+}
+
+function setInitialRuntimeStatus(): void {
+  if (!isCoconutVisionRuntimeAvailable()) {
+    setStatus('Pronto. Preview local ativo no navegador.');
+  }
 }
 
 function updateZoomLabel(): void {
@@ -226,6 +261,10 @@ function formatDetectionSummary(summary: DetectionSummary): string {
 function getBackendLabel(backend: DetectionBackend): string {
   if (backend === COCONUT_VISION_BACKEND) return 'Coconut Vision';
   return 'Detector leve';
+}
+
+function getInitialDetectionBackend(): DetectionBackend {
+  return isCoconutVisionRuntimeAvailable() ? COCONUT_VISION_BACKEND : HEURISTIC_BACKEND;
 }
 
 function createEmptySummary(): DetectionSummary {

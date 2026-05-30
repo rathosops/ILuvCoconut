@@ -60,12 +60,12 @@ const STUDIO_SHELL_TEMPLATE = `
         <section>
           <h2>Fundo e figuras</h2>
           <div class="control-grid">
-            <label>Tolerancia <input id="detectionThreshold" type="number" min="${MIN_COUNT_INPUT}" max="${MAX_COLOR_CHANNEL}" value="${DEFAULT_DETECTION_THRESHOLD}" /></label>
-            <label>Area minima <input id="detectionMinArea" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_DETECTION_MIN_AREA}" /></label>
+            <label>Tolerância <input id="detectionThreshold" type="number" min="${MIN_COUNT_INPUT}" max="${MAX_COLOR_CHANNEL}" value="${DEFAULT_DETECTION_THRESHOLD}" /></label>
+            <label>Área mínima <input id="detectionMinArea" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_DETECTION_MIN_AREA}" /></label>
           </div>
           <div class="segmented secondary">
             <button id="coconutVisionBackend" class="active" type="button">Coconut Vision</button>
-            <button id="heuristicBackend" type="button">Leve</button>
+            <button id="heuristicBackend" type="button">Detector leve</button>
           </div>
           <div class="tool-row">
             <button id="sampleBackground" type="button">Detectar fundo</button>
@@ -80,7 +80,7 @@ const STUDIO_SHELL_TEMPLATE = `
           <button id="zoomOut" type="button">-</button>
           <span id="zoomLabel">100%</span>
           <button id="zoomIn" type="button">+</button>
-          <label><input id="backgroundPreview" type="checkbox" checked /> fundo claro</label>
+          <label><input id="backgroundPreview" type="checkbox" checked /> Fundo claro</label>
         </div>
         <canvas id="sheetCanvas" width="${SHEET_CANVAS_WIDTH}" height="${SHEET_CANVAS_HEIGHT}"></canvas>
       </section>
