@@ -20,6 +20,7 @@ import {
 } from './studioConstants';
 import { getCanvasContext } from './dom';
 import { componentBoundsToFrames } from './frameMath';
+import { mergeNearbyComponents } from './imageComponentMerging';
 import type { ComponentBounds, DetectionSummary, FrameRect, RgbColor } from './types';
 
 export interface HeuristicDetectionResult {
@@ -162,10 +163,13 @@ function connectedComponents(mask: Uint8Array, width: number, height: number, mi
       }
     }
 
-    if (bounds.area >= minArea) components.push(bounds);
+    if (bounds.area >= MIN_CONNECTED_COMPONENT_AREA) components.push(bounds);
   }
 
-  return mergeNearbyComponents(components, Math.max(COMPONENT_MERGE_PADDING_MIN, Math.round(Math.min(width, height) * COMPONENT_MERGE_PADDING_RATIO)));
+  return mergeNearbyComponents(
+    components,
+    Math.max(COMPONENT_MERGE_PADDING_MIN, Math.round(Math.min(width, height) * COMPONENT_MERGE_PADDING_RATIO))
+  ).filter((component) => component.area >= minArea);
 
   function enqueueNeighbor(pixel: number, valid: boolean): void {
     if (!valid || visited[pixel] || !mask[pixel]) return;
@@ -175,37 +179,8 @@ function connectedComponents(mask: Uint8Array, width: number, height: number, mi
   }
 }
 
-function mergeNearbyComponents(components: ComponentBounds[], padding: number): ComponentBounds[] {
-  let merged = components.map((component) => ({ ...component }));
-  let changed = true;
-
-  while (changed) {
-    changed = false;
-    const next: ComponentBounds[] = [];
-
-    for (const component of merged) {
-      const target = next.find((candidate) => boxesOverlap(candidate, component, padding));
-      if (!target) {
-        next.push({ ...component });
-        continue;
-      }
-
-      target.minX = Math.min(target.minX, component.minX);
-      target.minY = Math.min(target.minY, component.minY);
-      target.maxX = Math.max(target.maxX, component.maxX);
-      target.maxY = Math.max(target.maxY, component.maxY);
-      target.area += component.area;
-      changed = true;
-    }
-
-    merged = next;
-  }
-
-  return merged;
-}
-
 function cleanForegroundMask(mask: Uint8Array, width: number, height: number): Uint8Array {
-  return dilateMask(erodeMask(dilateMask(mask, width, height), width, height), width, height);
+  return erodeMask(dilateMask(mask, width, height), width, height);
 }
 
 function erodeMask(mask: Uint8Array, width: number, height: number): Uint8Array {
@@ -258,13 +233,6 @@ function hasAnyNeighborhood(mask: Uint8Array, x: number, y: number, width: numbe
   }
 
   return false;
-}
-
-function boxesOverlap(left: ComponentBounds, right: ComponentBounds, padding: number): boolean {
-  return left.minX - padding <= right.maxX
-    && left.maxX + padding >= right.minX
-    && left.minY - padding <= right.maxY
-    && left.maxY + padding >= right.minY;
 }
 
 function medianColor(samples: RgbColor[]): RgbColor {
