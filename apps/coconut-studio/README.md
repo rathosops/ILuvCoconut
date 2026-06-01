@@ -10,7 +10,7 @@ O guia de execução e uso fica em:
 docs/18-guia-coconut-studio.md
 ```
 
-Ele cobre execução web, execução Tauri, importação de imagens, grid manual, autofiguras, backends de detecção, preview, exportação de plano JSON e limites atuais.
+Ele cobre execução web, execução Tauri, importação de imagens, grid manual, autofiguras, backends de detecção, preview, exportação de plano JSON e limites atuais. Dependências por sistema ficam em `docs/19-ambiente-e-dependencias.md`.
 
 ## Executar na web
 
@@ -18,6 +18,12 @@ Pela raiz do monorepo:
 
 ```bash
 pnpm dev:studio
+```
+
+Ou:
+
+```bash
+make dev-studio
 ```
 
 Ou pelo pacote:
@@ -36,6 +42,18 @@ Pela raiz do monorepo:
 
 ```bash
 pnpm studio:tauri dev
+```
+
+Ou:
+
+```bash
+make studio-tauri
+```
+
+Em Linux com Wayland/Hyprland/NVIDIA:
+
+```bash
+make studio-tauri-linux
 ```
 
 Ou pelo pacote:

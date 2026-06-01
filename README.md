@@ -21,6 +21,23 @@ pnpm dev:studio
 
 `pnpm quality` executa a validação completa local: TypeScript, ESLint, configs do jogo de exemplo e testes Rust do `coconut-vision`.
 
+Se `pnpm` não estiver instalado globalmente, use `npx -y pnpm@9.15.0 <comando>` ou os atalhos do `Makefile`.
+
+## Ambiente
+
+Dependências de Linux, Windows, Tauri, Rust, Node.js, pnpm e Docker estão documentadas em `docs/19-ambiente-e-dependencias.md`.
+
+Atalhos principais:
+
+```bash
+make help
+make install
+make dev-studio
+make studio-tauri-linux
+make dev-pixi
+make quality
+```
+
 ## Coconut Studio
 
 O Studio é a interface web/local para importar arte bruta, ajustar grid, detectar figuras, revisar frames e exportar plano JSON.
@@ -30,7 +47,7 @@ pnpm dev:studio      # web em http://localhost:5174
 pnpm studio:tauri dev # desktop local com Tauri e Coconut Vision
 ```
 
-O guia completo fica em `docs/18-guia-coconut-studio.md`.
+O guia completo fica em `docs/18-guia-coconut-studio.md`. Em Linux com Wayland/Hyprland/NVIDIA, prefira `make studio-tauri-linux`.
 
 ## Desenvolvimento com Docker
 

@@ -32,6 +32,7 @@ A primeira versão oferece:
 ## Fluxo esperado
 
 O guia operacional completo fica em `docs/18-guia-coconut-studio.md`.
+As dependências de sistema ficam em `docs/19-ambiente-e-dependencias.md`.
 
 ```bash
 pnpm dev:studio

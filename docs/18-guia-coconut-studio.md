@@ -17,12 +17,20 @@ pnpm install
 
 Para executar o modo desktop, também é necessário ter Rust instalado e os pré-requisitos do Tauri v2 para o sistema operacional. No Linux, isso inclui WebKitGTK. No Windows, o runtime usa WebView2. No macOS, usa WKWebView.
 
+Veja a lista completa de dependências por sistema em `docs/19-ambiente-e-dependencias.md`.
+
 ## Executar na web
 
 Use o comando de atalho da raiz:
 
 ```bash
 pnpm dev:studio
+```
+
+Ou com Make:
+
+```bash
+make dev-studio
 ```
 
 Ou execute direto pelo pacote:
@@ -57,6 +65,18 @@ Use o atalho da raiz:
 
 ```bash
 pnpm studio:tauri dev
+```
+
+Ou com Make:
+
+```bash
+make studio-tauri
+```
+
+Em Linux com Wayland/Hyprland/NVIDIA, use:
+
+```bash
+make studio-tauri-linux
 ```
 
 Ou execute direto pelo pacote:
