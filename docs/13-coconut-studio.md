@@ -1,6 +1,6 @@
 # Coconut Studio
 
-Coconut Studio é a interface web/local do ILuvCoconut para facilitar criação de jogos slot, tratamento de assets e montagem visual. A ferramenta deve ser leve, rápida e separada do player de produção.
+Coconut Studio é a interface web/local do ILuvCoconut para facilitar criação de jogos de casino web, tratamento de assets e montagem visual. A ferramenta deve ser leve, rápida e separada do player de produção, mas já deve se comportar como uma engine: projeto, template de jogo, viewport, inspector e pipeline explícito.
 
 ## Decisão técnica
 
@@ -21,8 +21,13 @@ Tauri foi escolhido porque usa Rust no backend e WebView do sistema operacional.
 A primeira versão oferece:
 
 - importação local de imagem raster;
+- criação de nova sessão de projeto;
+- escolha de tipo de projeto: slot, bingo, pachinko ou livre;
+- suporte de interface em português, inglês e espanhol;
 - ajuste de grid de spritesheet com largura/altura manual de célula;
 - seleção e preview de frames;
+- redimensionamento manual de frames detectados por 8 handles;
+- remoção manual de frames detectados como falsos positivos;
 - detecção de cor de fundo por amostragem dos cantos;
 - auto-detect de figuras por diferença de cor e componentes conectados;
 - simulação visual de fundo claro;
@@ -58,10 +63,10 @@ No Linux, instalar os pré-requisitos do Tauri, incluindo WebKitGTK.
 
 ## Arquitetura de UI
 
-- Toolbar superior com ações globais.
-- Browser/inspector de projeto à esquerda.
+- Toolbar superior com ações globais, seletor de idioma e workspaces.
+- Browser/inspector de projeto à esquerda, incluindo template de jogo.
 - Canvas central para imagem, linhas de recorte e preview visual.
-- Inspector à direita com frame selecionado e próximos passos.
+- Inspector à direita com frame selecionado, preview, remoção e próximos passos.
 - Status bar inferior para feedback curto.
 
 O canvas é usado para interação visual. DOM/CSS continuam responsáveis por controles, inputs e navegação para manter acessibilidade e performance.
@@ -70,8 +75,12 @@ O código do Studio é dividido por responsabilidade para evitar arquivos coloss
 
 - `main.ts`: orquestra estado, eventos e chamadas de alto nível.
 - `studioTemplate.ts`: mantém o HTML estático da interface.
+- `i18n.ts`: mantém textos traduzíveis em português, inglês e espanhol.
+- `projectControls.ts`: controla nova sessão, idioma e tipo de projeto.
 - `dom.ts`: centraliza helpers de DOM e criação de contexto 2D.
 - `frameMath.ts`: calcula grids, bounding boxes, seleção e posicionamento no canvas.
+- `frameEditing.ts` e `frameEditingController.ts`: controlam handles de resize e pointer capture.
+- `detectedFrameActions.ts`: reúne ações sobre frames detectados, como remoção.
 - `imageDetection.ts`: executa a heurística leve de máscara e componentes conectados.
 - `coconutVision.ts`: chama o backend Rust quando o Studio roda no Tauri.
 - `canvasRenderer.ts`: desenha imagem, overlays, checkerboard e preview.
@@ -95,6 +104,7 @@ Controles atuais:
 - `Area minima`: remove ruídos pequenos.
 - `Detectar fundo`: amostra cantos e bordas da imagem.
 - `Auto figuras`: detecta regiões conectadas diferentes do fundo.
+- `Remover frame`: elimina falsos positivos depois da detecção.
 - `Largura` e `Altura`: permitem dimensionar manualmente a célula do grid quando a divisão automática não encaixa.
 - `Leve`: usa heurística própria com `getImageData` e componentes conectados.
 - `coconut-vision`: backend Rust via Tauri para detecção de produção, com fallback para a heurística TypeScript quando indisponível.
@@ -103,7 +113,7 @@ Limites:
 
 - fundo com gradiente forte pode exigir tolerância maior;
 - sombras muito parecidas com o fundo podem ser cortadas;
-- figuras encostadas podem virar uma única região;
+- figuras encostadas podem exigir revisão manual mesmo com split/trim de overlap;
 - remoção de fundo fina ainda deve ficar no pipeline `sharp`, WASM ou Rust.
 
 ## Evolução técnica
@@ -124,7 +134,8 @@ Para avançar além da heurística leve:
 - Permitir escolher pasta de jogo local.
 - Escrever planos de recorte e manifests com escrita atômica.
 - Adicionar ferramenta de linhas/polígonos para recorte manual.
-- Permitir editar manualmente bounding boxes detectadas.
+- Persistir sessões de projeto e presets por tipo de jogo.
+- Expandir edição manual para polígonos/contornos quando bounding boxes retangulares não forem suficientes.
 - Integrar preview real com `apps/player-pixi`.
 - Fazer o player Pixi carregar `games/<game-id>` e fixtures por query string.
 

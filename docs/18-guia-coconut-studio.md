@@ -101,17 +101,22 @@ O empacotamento final do app desktop ainda não é o foco do projeto. O fluxo su
 1. Coloque a arte bruta em uma pasta local de trabalho, normalmente `raw-assets/<fonte>/`.
 2. Abra o Coconut Studio pela web ou pelo Tauri.
 3. Clique em `Importar imagem` e selecione PNG, JPEG, WebP ou AVIF.
-4. Use `Grid` quando a folha tiver células regulares.
-5. Use `Auto figuras` quando os símbolos estiverem distribuídos por conteúdo, sem grade fixa.
-6. Revise o overlay no canvas e o preview do frame selecionado.
-7. Ajuste tolerância, área mínima, grid, zoom e fundo claro conforme necessário.
-8. Clique em `Exportar plano` para copiar o JSON para a área de transferência.
-9. Para crop final, rode o pipeline CLI/Tauri com `coconut-vision` e revise os assets gerados.
+4. Escolha o tipo de projeto: `Slot`, `Bingo`, `Pachinko` ou `Livre`.
+5. Use `Grid` quando a folha tiver células regulares.
+6. Use `Auto figuras` quando os símbolos estiverem distribuídos por conteúdo, sem grade fixa.
+7. Revise o overlay no canvas e o preview do frame selecionado.
+8. Em `Figuras`, arraste os 8 pontos do frame selecionado para ajustar manualmente o recorte.
+9. Use `Remover frame` quando um falso positivo for detectado como figura.
+10. Ajuste tolerância, área mínima, grid, zoom e fundo claro conforme necessário.
+11. Clique em `Exportar plano` para copiar o JSON para a área de transferência.
+12. Para crop final, rode o pipeline CLI/Tauri com `coconut-vision` e revise os assets gerados.
 
 ## Interface
 
 ### Barra superior
 
+- `Novo projeto`: limpa a sessão atual e reinicia o Studio com o template padrão.
+- `Idioma`: alterna a interface entre português, inglês e espanhol.
 - `Importar imagem`: carrega uma imagem local no Studio.
 - `Exportar plano`: copia para a área de transferência um JSON com jogo, prefixo, grid, frames detectados e resumo de detecção.
 
@@ -119,8 +124,16 @@ O empacotamento final do app desktop ainda não é o foco do projeto. O fluxo su
 
 - `Jogo`: identifica o jogo de destino no plano exportado. O valor inicial é `fruit-classic`.
 - `Prefixo`: prefixo usado para os símbolos no plano exportado. O valor inicial é `symbol`.
+- `Tipo de jogo`: define o template conceitual do projeto.
 
 Esses campos não gravam arquivos automaticamente. Eles apenas entram no plano JSON.
+
+Tipos disponíveis:
+
+- `Slot`: base para rolos, símbolos, paytable, linhas, animações e assets de slot.
+- `Bingo`: base para cartelas, bolas, chamadas e estados de vitória.
+- `Pachinko`: base para pinos, física, zonas de prêmio e multiplicadores.
+- `Livre`: projeto sem preset rígido para protótipos e ferramentas internas.
 
 ### Modo
 
@@ -157,6 +170,7 @@ No navegador, selecionar `Coconut Vision` força fallback para `Detector leve`, 
 - Mostra a imagem carregada.
 - Mostra overlays de recorte do `Grid` ou das `Figuras`.
 - Permite selecionar um frame clicando sobre ele.
+- No modo `Figuras`, mostra 8 handles no frame selecionado para redimensionar cantos e lados.
 - O frame selecionado aparece no preview do inspector.
 
 Controles:
@@ -167,6 +181,7 @@ Controles:
 ### Inspector
 
 - `Frame`: mostra dados do frame selecionado e o preview recortado.
+- `Remover frame`: remove o frame selecionado no modo `Figuras`, útil para falsos positivos.
 - `Pipeline`: lista o fluxo operacional esperado: importar arte, ajustar grid ou detectar figuras, validar preview, exportar plano e rodar pipeline CLI/Tauri.
 
 ### Status
@@ -213,14 +228,14 @@ Use esse backend quando o objetivo for gerar uma detecção mais reprodutível a
 - backend usado;
 - resumo de detecção quando existir.
 
-O plano não substitui os assets finais. Ele serve como contrato intermediário para revisão, integração e automação futura.
+O plano não substitui os assets finais. Ele serve como contrato intermediário para revisão, integração e automação futura. O JSON exportado também inclui `projectType`, que permite ao pipeline distinguir projetos de slot, bingo, pachinko e fluxos livres.
 
 ## Limites atuais
 
 - O Studio ainda não grava crops finais diretamente em `games/<game-id>/assets/raw/symbols`.
 - O navegador não acessa filesystem local além do arquivo importado pelo usuário.
 - O backend `coconut-vision` só está disponível no Tauri.
-- A edição manual de bounding boxes ainda não foi implementada.
+- A edição manual atual cobre redimensionamento retangular e remoção de frames; ferramentas de polígonos/contornos ainda ficam para evolução.
 - Recortes de produção devem ser finalizados pelo CLI/Tauri e revisados visualmente.
 
 ## Comandos relacionados

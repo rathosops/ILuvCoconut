@@ -1,5 +1,7 @@
 export type FrameMode = 'grid' | 'detected';
 export type DetectionBackend = 'heuristic' | 'coconutVision';
+export type GameProjectType = 'slot' | 'bingo' | 'pachinko' | 'free';
+export type StudioLanguage = 'pt' | 'en' | 'es';
 
 export interface CropGrid {
   columns: number;
@@ -33,6 +35,8 @@ export interface StudioState {
   detectionBackend: DetectionBackend;
   detectedFrames: FrameRect[];
   detectionSummary?: DetectionSummary | undefined;
+  language: StudioLanguage;
+  projectType: GameProjectType;
 }
 
 export interface FrameRect {

@@ -1,6 +1,6 @@
 # ILuvCoconut
 
-**ILuvCoconut** é uma slot frontend engine TypeScript, otimizada para jogos de cassino web, com runtime próprio e dois renderers oficiais:
+**ILuvCoconut** é uma engine TypeScript para jogos de cassino web, otimizada para slots e preparada para evoluir com templates de bingo, pachinko e projetos livres, com runtime próprio e dois renderers oficiais:
 
 - **Coconut Pixi**: renderer principal, Linux-first, CI/CD-first e produção web.
 - **Coconut Cocos**: renderer/editor opcional para equipes que usam Cocos Creator em Windows/macOS.
@@ -41,7 +41,7 @@ make quality
 
 ## Coconut Studio
 
-O Studio é a interface web/local para importar arte bruta, ajustar grid, detectar figuras, revisar frames e exportar plano JSON.
+O Studio é a interface web/local para criar uma sessão de projeto, escolher tipo de jogo, importar arte bruta, ajustar grid, detectar figuras, revisar/remover/redimensionar frames e exportar plano JSON.
 
 ```bash
 pnpm dev:studio      # web em http://localhost:5174

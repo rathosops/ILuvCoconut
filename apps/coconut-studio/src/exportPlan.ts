@@ -1,16 +1,18 @@
 import { GRID_MODE } from './studioConstants';
 import { getFrames } from './frameMath';
-import type { StudioState } from './types';
+import type { GameProjectType, StudioState } from './types';
 
 export interface ExportPlanInput {
   assetPrefix: string;
   gameId: string;
+  projectType: GameProjectType;
   state: StudioState;
 }
 
-export function createExportPlan({ assetPrefix, gameId, state }: ExportPlanInput): object {
+export function createExportPlan({ assetPrefix, gameId, projectType, state }: ExportPlanInput): object {
   return {
     gameId,
+    projectType,
     source: state.imageName ?? null,
     mode: state.frameMode,
     target: 'games/<game-id>/assets/raw/symbols',

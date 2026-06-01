@@ -1,16 +1,20 @@
 import './styles.css';
 import { detectFiguresWithCoconutVision, isCoconutVisionRuntimeAvailable } from './coconutVision';
 import { drawStudioCanvas } from './canvasRenderer';
+import { deleteSelectedDetectedFrame } from './detectedFrameActions';
 import { getCanvasContext, getElement, getInputTarget } from './dom';
 import { createExportPlan } from './exportPlan';
 import { bindFrameEditing } from './frameEditingController';
 import { getFrames } from './frameMath';
 import { detectFiguresWithHeuristic, sampleBackgroundColor } from './imageDetection';
+import { bindProjectControls, syncLanguage } from './projectControls';
 import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_DETECTION_MIN_AREA,
   DEFAULT_DETECTION_THRESHOLD,
   DEFAULT_GRID,
+  DEFAULT_LANGUAGE,
+  DEFAULT_PROJECT_TYPE,
   DEFAULT_ZOOM,
   COCONUT_VISION_BACKEND,
   DETECTED_MODE,
@@ -39,7 +43,9 @@ const state: StudioState = {
   detectionMinArea: DEFAULT_DETECTION_MIN_AREA,
   detectionBackend: getInitialDetectionBackend(),
   detectedFrames: [],
-  detectionSummary: undefined
+  detectionSummary: undefined,
+  language: DEFAULT_LANGUAGE,
+  projectType: DEFAULT_PROJECT_TYPE
 };
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -67,6 +73,9 @@ getElement<HTMLButtonElement>('gridMode').addEventListener('click', () => { setF
 getElement<HTMLButtonElement>('detectedMode').addEventListener('click', () => { setFrameMode(DETECTED_MODE); });
 getElement<HTMLButtonElement>('coconutVisionBackend').addEventListener('click', () => { setDetectionBackend(COCONUT_VISION_BACKEND); });
 getElement<HTMLButtonElement>('heuristicBackend').addEventListener('click', () => { setDetectionBackend(HEURISTIC_BACKEND); });
+getElement<HTMLButtonElement>('deleteFrame').addEventListener('click', () => {
+  deleteSelectedDetectedFrame({ draw, setStatus, state });
+});
 
 getElement<HTMLButtonElement>('sampleBackground').addEventListener('click', () => {
   if (!state.image) return;
@@ -104,6 +113,7 @@ getElement<HTMLButtonElement>('exportPlan').addEventListener('click', () => {
   const plan = createExportPlan({
     assetPrefix: getElement<HTMLInputElement>('assetPrefix').value,
     gameId: getElement<HTMLInputElement>('gameId').value,
+    projectType: state.projectType,
     state
   });
   void navigator.clipboard.writeText(JSON.stringify(plan, null, JSON_INDENT_SPACES));
@@ -111,9 +121,16 @@ getElement<HTMLButtonElement>('exportPlan').addEventListener('click', () => {
 });
 
 bindFrameEditing({ draw, sheetCanvas, state });
+bindProjectControls({ draw, setStatus, state, syncFrameModeButtons, updateBackgroundSwatch });
+document.addEventListener('keydown', (event) => {
+  if (event.key !== 'Delete' && event.key !== 'Backspace') return;
+  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
+  deleteSelectedDetectedFrame({ draw, setStatus, state });
+});
 
 syncFrameModeButtons();
 syncDetectionBackendButtons();
+syncLanguage(state);
 setInitialRuntimeStatus();
 draw();
 

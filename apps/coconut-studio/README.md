@@ -1,6 +1,6 @@
 # ILuvCoconut Studio
 
-Interface local/web para preparar assets e montar slots.
+Interface local/web para preparar assets e montar jogos de casino web no ILuvCoconut.
 
 ## Guia completo
 
@@ -10,7 +10,7 @@ O guia de execução e uso fica em:
 docs/18-guia-coconut-studio.md
 ```
 
-Ele cobre execução web, execução Tauri, importação de imagens, grid manual, autofiguras, backends de detecção, preview, exportação de plano JSON e limites atuais. Dependências por sistema ficam em `docs/19-ambiente-e-dependencias.md`.
+Ele cobre execução web, execução Tauri, criação de projeto, tipos de jogo, idiomas, importação de imagens, grid manual, autofiguras, backends de detecção, edição manual de frames, preview, exportação de plano JSON e limites atuais. Dependências por sistema ficam em `docs/19-ambiente-e-dependencias.md`.
 
 ## Executar na web
 
@@ -74,12 +74,17 @@ No Linux, instale os pré-requisitos do Tauri, incluindo WebKitGTK. No Windows, 
 ## Funcionalidades atuais
 
 - Importar PNG, JPEG, WebP e AVIF.
+- Criar nova sessão de projeto.
+- Definir tipo de jogo: slot, bingo, pachinko ou livre.
+- Alternar interface entre português, inglês e espanhol.
 - Ajustar recortes por grid manual.
 - Detectar figuras automaticamente por conteúdo.
 - Alternar entre `Detector leve` no browser e `Coconut Vision` no Tauri.
 - Reamostrar cor de fundo.
 - Ajustar tolerância e área mínima.
 - Selecionar frames no canvas.
+- Redimensionar frames detectados com 8 handles.
+- Remover frames detectados como falsos positivos.
 - Visualizar preview do frame selecionado.
 - Alternar fundo claro para revisar bordas e transparência.
 - Controlar zoom do canvas.
