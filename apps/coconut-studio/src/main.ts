@@ -3,7 +3,8 @@ import { detectFiguresWithCoconutVision, isCoconutVisionRuntimeAvailable } from 
 import { drawStudioCanvas } from './canvasRenderer';
 import { getCanvasContext, getElement, getInputTarget } from './dom';
 import { createExportPlan } from './exportPlan';
-import { frameAtPointer, getFrames } from './frameMath';
+import { bindFrameEditing } from './frameEditingController';
+import { getFrames } from './frameMath';
 import { detectFiguresWithHeuristic, sampleBackgroundColor } from './imageDetection';
 import {
   DEFAULT_BACKGROUND_COLOR,
@@ -109,12 +110,7 @@ getElement<HTMLButtonElement>('exportPlan').addEventListener('click', () => {
   setStatus('Plano JSON copiado para a area de transferencia.');
 });
 
-sheetCanvas.addEventListener('pointerdown', (event) => {
-  const frame = frameAtPointer(event, sheetCanvas, state.image, state.zoom, getFrames(state));
-  if (!frame) return;
-  state.selectedFrame = frame.index;
-  draw();
-});
+bindFrameEditing({ draw, sheetCanvas, state });
 
 syncFrameModeButtons();
 syncDetectionBackendButtons();

@@ -36,11 +36,14 @@ pub fn detect_symbols(request: &DetectSymbolsRequest) -> VisionResult<DetectSymb
     detect_pixels(
         analysis_width,
         analysis_height,
+        source_width,
+        source_height,
         &rgba,
         request.threshold,
         request.min_area,
         request.padding,
         request.background_mode,
+        None,
         analysis_scale,
     )
 }
@@ -77,11 +80,14 @@ pub fn detect_symbols_from_rgba(request: &PixelDetectionRequest) -> VisionResult
     detect_pixels(
         request.width,
         request.height,
+        request.source_width,
+        request.source_height,
         &request.rgba,
         request.threshold,
         request.min_area,
         request.padding,
         request.background_mode,
+        request.background_color,
         request.analysis_scale,
     )
 }
@@ -89,22 +95,25 @@ pub fn detect_symbols_from_rgba(request: &PixelDetectionRequest) -> VisionResult
 fn detect_pixels(
     width: u32,
     height: u32,
+    source_width: u32,
+    source_height: u32,
     rgba: &[u8],
     threshold: u8,
     min_area: u32,
     padding: u32,
     background_mode: crate::types::BackgroundMode,
+    background_color: Option<crate::types::RgbaColor>,
     analysis_scale: f32,
 ) -> VisionResult<DetectSymbolsResponse> {
     let started_at = Instant::now();
     validate_rgba(width, height, rgba)?;
 
-    let background_color = sample_background(width, height, rgba);
+    let background_color = background_color.unwrap_or_else(|| sample_background(width, height, rgba));
     let mask = create_foreground_mask(width, height, rgba, background_color, threshold);
     let mask = clean_mask(&mask, width, height);
     let scaled_min_area = ((min_area as f32) * analysis_scale * analysis_scale).round().max(1.0) as u32;
     let components = connected_components(&mask, width, height, scaled_min_area);
-    let symbols = components_to_symbols(&components, width, height, padding, analysis_scale);
+    let symbols = components_to_symbols(&components, source_width, source_height, padding, analysis_scale);
     let figures_by_row = figures_by_row(&symbols);
 
     Ok(DetectSymbolsResponse {
@@ -201,17 +210,51 @@ mod tests {
         let response = detect_symbols_from_rgba(&PixelDetectionRequest {
             width: width as u32,
             height: height as u32,
+            source_width: width as u32,
+            source_height: height as u32,
             rgba,
             threshold: 20,
             min_area: 20,
             padding: 0,
             background_mode: BackgroundMode::Auto,
+            background_color: None,
             analysis_scale: 1.0,
         })
         .expect("synthetic image should be detected");
 
         assert_eq!(response.summary.figure_count, 5);
         assert_eq!(response.summary.figures_by_row, vec![2, 3]);
+    }
+
+    #[test]
+    fn keeps_row_grouping_when_analysis_is_scaled() {
+        let width = 170;
+        let height = 70;
+        let mut rgba = vec![0_u8; width * height * RGBA_STRIDE];
+        fill(&mut rgba, width, 22, 10, 10, 10, [255, 0, 0, 255]);
+        fill(&mut rgba, width, 62, 10, 10, 10, [255, 0, 0, 255]);
+        fill(&mut rgba, width, 22, 38, 10, 10, [255, 0, 0, 255]);
+        fill(&mut rgba, width, 62, 38, 10, 10, [255, 0, 0, 255]);
+        fill(&mut rgba, width, 102, 38, 10, 10, [255, 0, 0, 255]);
+
+        let response = detect_symbols_from_rgba(&PixelDetectionRequest {
+            width: width as u32,
+            height: height as u32,
+            source_width: (width * 2) as u32,
+            source_height: (height * 2) as u32,
+            rgba,
+            threshold: 20,
+            min_area: 80,
+            padding: 0,
+            background_mode: BackgroundMode::Auto,
+            background_color: None,
+            analysis_scale: 0.5,
+        })
+        .expect("scaled synthetic image should be detected");
+
+        assert_eq!(response.summary.figure_count, 5);
+        assert_eq!(response.summary.figures_by_row, vec![2, 3]);
+        assert!(response.symbols.iter().all(|symbol| symbol.height > 1));
     }
 
     #[test]

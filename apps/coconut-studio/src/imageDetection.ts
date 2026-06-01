@@ -21,6 +21,7 @@ import {
 import { getCanvasContext } from './dom';
 import { componentBoundsToFrames } from './frameMath';
 import { mergeNearbyComponents } from './imageComponentMerging';
+import { splitWideComponents } from './imageComponentSplitting';
 import type { ComponentBounds, DetectionSummary, FrameRect, RgbColor } from './types';
 
 export interface HeuristicDetectionResult {
@@ -166,10 +167,12 @@ function connectedComponents(mask: Uint8Array, width: number, height: number, mi
     if (bounds.area >= MIN_CONNECTED_COMPONENT_AREA) components.push(bounds);
   }
 
-  return mergeNearbyComponents(
+  const merged = mergeNearbyComponents(
     components,
     Math.max(COMPONENT_MERGE_PADDING_MIN, Math.round(Math.min(width, height) * COMPONENT_MERGE_PADDING_RATIO))
-  ).filter((component) => component.area >= minArea);
+  );
+
+  return splitWideComponents(mask, width, merged, minArea).filter((component) => component.area >= minArea);
 
   function enqueueNeighbor(pixel: number, valid: boolean): void {
     if (!valid || visited[pixel] || !mask[pixel]) return;

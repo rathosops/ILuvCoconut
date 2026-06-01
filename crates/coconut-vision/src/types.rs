@@ -50,11 +50,14 @@ pub struct CropSymbolsRequest {
 pub struct PixelDetectionRequest {
     pub width: u32,
     pub height: u32,
+    pub source_width: u32,
+    pub source_height: u32,
     pub rgba: Vec<u8>,
     pub threshold: u8,
     pub min_area: u32,
     pub padding: u32,
     pub background_mode: BackgroundMode,
+    pub background_color: Option<RgbaColor>,
     pub analysis_scale: f32,
 }
 

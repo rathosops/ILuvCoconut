@@ -1,6 +1,9 @@
 import { getCanvasContext } from './dom';
 import {
-  ANALYSIS_MAX_PIXELS,
+  COMPONENT_PADDING_BASE,
+  COMPONENT_PADDING_MIN,
+  COCONUT_VISION_MAX_PIXELS,
+  MAX_COLOR_CHANNEL,
   MIN_COUNT_INPUT,
   MIN_NUMERIC_INPUT
 } from './studioConstants';
@@ -9,12 +12,19 @@ import type { DetectionSummary, FrameRect, RgbColor } from './types';
 interface CoconutVisionRequest {
   width: number;
   height: number;
+  sourceWidth: number;
+  sourceHeight: number;
   rgba: number[];
   threshold: number;
   minArea: number;
   padding: number;
   backgroundMode: 'auto';
+  backgroundColor: CoconutVisionRgbaColor;
   analysisScale: number;
+}
+
+interface CoconutVisionRgbaColor extends RgbColor {
+  a: number;
 }
 
 interface CoconutVisionResponse {
@@ -55,12 +65,12 @@ export interface CoconutVisionDetectionResult {
 
 export async function detectFiguresWithCoconutVision(
   image: HTMLImageElement,
-  _background: RgbColor,
+  background: RgbColor,
   threshold: number,
   minArea: number
 ): Promise<CoconutVisionDetectionResult> {
   const invoke = getTauriInvoke();
-  const request = createCoconutVisionRequest(image, threshold, minArea);
+  const request = createCoconutVisionRequest(image, background, threshold, minArea);
   const response = await invoke<CoconutVisionResponse>('detect_symbols', { request });
 
   return {
@@ -97,8 +107,8 @@ function getTauriInvoke(): TauriInternals['invoke'] {
   return tauriGlobal.__TAURI_INTERNALS__.invoke;
 }
 
-function createCoconutVisionRequest(image: HTMLImageElement, threshold: number, minArea: number): CoconutVisionRequest {
-  const analysisScale = Math.min(MIN_COUNT_INPUT, Math.sqrt(ANALYSIS_MAX_PIXELS / (image.naturalWidth * image.naturalHeight)));
+function createCoconutVisionRequest(image: HTMLImageElement, background: RgbColor, threshold: number, minArea: number): CoconutVisionRequest {
+  const analysisScale = Math.min(MIN_COUNT_INPUT, Math.sqrt(COCONUT_VISION_MAX_PIXELS / (image.naturalWidth * image.naturalHeight)));
   const width = Math.max(MIN_COUNT_INPUT, Math.round(image.naturalWidth * analysisScale));
   const height = Math.max(MIN_COUNT_INPUT, Math.round(image.naturalHeight * analysisScale));
   const canvas = document.createElement('canvas');
@@ -111,11 +121,14 @@ function createCoconutVisionRequest(image: HTMLImageElement, threshold: number, 
   return {
     width,
     height,
+    sourceWidth: image.naturalWidth,
+    sourceHeight: image.naturalHeight,
     rgba: Array.from(imageData.data),
     threshold,
     minArea,
-    padding: MIN_NUMERIC_INPUT,
+    padding: Math.max(COMPONENT_PADDING_MIN, Math.round(COMPONENT_PADDING_BASE * analysisScale)),
     backgroundMode: 'auto',
+    backgroundColor: { ...background, a: MAX_COLOR_CHANNEL },
     analysisScale
   };
 }

@@ -2,6 +2,8 @@ import {
   CHECKERBOARD_SIZE,
   DETECTED_MODE,
   EMPTY_STATE_FONT,
+  FRAME_HANDLE_HALF_DIVISOR,
+  FRAME_HANDLE_SIZE,
   HALF_DIVISOR,
   MIN_COUNT_INPUT,
   MIN_NUMERIC_INPUT,
@@ -15,7 +17,7 @@ import {
   PREVIEW_CHECKERBOARD_SIZE
 } from './studioConstants';
 import { getCanvasPlacement, getFrames } from './frameMath';
-import type { CanvasPlacement, StudioState } from './types';
+import type { CanvasPlacement, FrameRect, StudioState } from './types';
 
 interface DrawStudioCanvasOptions {
   previewCanvas: HTMLCanvasElement;
@@ -81,7 +83,52 @@ function drawOverlay(options: DrawStudioCanvasOptions, placement: CanvasPlacemen
     sheetContext.fillRect(x + OVERLAY_LABEL_X, y + OVERLAY_LABEL_Y, OVERLAY_LABEL_WIDTH, OVERLAY_LABEL_HEIGHT);
     sheetContext.fillStyle = selected ? '#39e29d' : '#121820';
     sheetContext.fillText(String(frame.index + MIN_COUNT_INPUT), x + OVERLAY_LABEL_TEXT_X, y + OVERLAY_LABEL_TEXT_Y);
+    if (selected && state.frameMode === DETECTED_MODE) drawResizeHandles(sheetContext, frame, placement);
   }
+}
+
+function drawResizeHandles(context: CanvasRenderingContext2D, frame: FrameRect, placement: CanvasPlacement): void {
+  context.save();
+  context.fillStyle = '#39e29d';
+  context.strokeStyle = '#07130f';
+  context.lineWidth = MIN_COUNT_INPUT;
+
+  for (const point of getHandlePoints(frame, placement)) {
+    context.fillRect(
+      point.x - FRAME_HANDLE_SIZE / FRAME_HANDLE_HALF_DIVISOR,
+      point.y - FRAME_HANDLE_SIZE / FRAME_HANDLE_HALF_DIVISOR,
+      FRAME_HANDLE_SIZE,
+      FRAME_HANDLE_SIZE
+    );
+    context.strokeRect(
+      point.x - FRAME_HANDLE_SIZE / FRAME_HANDLE_HALF_DIVISOR,
+      point.y - FRAME_HANDLE_SIZE / FRAME_HANDLE_HALF_DIVISOR,
+      FRAME_HANDLE_SIZE,
+      FRAME_HANDLE_SIZE
+    );
+  }
+
+  context.restore();
+}
+
+function getHandlePoints(frame: FrameRect, placement: CanvasPlacement): Array<{ x: number; y: number }> {
+  const left = placement.offsetX + frame.x * placement.scale;
+  const top = placement.offsetY + frame.y * placement.scale;
+  const centerX = left + frame.width * placement.scale / HALF_DIVISOR;
+  const centerY = top + frame.height * placement.scale / HALF_DIVISOR;
+  const right = left + frame.width * placement.scale;
+  const bottom = top + frame.height * placement.scale;
+
+  return [
+    { x: left, y: top },
+    { x: centerX, y: top },
+    { x: right, y: top },
+    { x: right, y: centerY },
+    { x: right, y: bottom },
+    { x: centerX, y: bottom },
+    { x: left, y: bottom },
+    { x: left, y: centerY }
+  ];
 }
 
 function drawPreview(options: DrawStudioCanvasOptions): void {

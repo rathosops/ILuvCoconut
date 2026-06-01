@@ -3,9 +3,11 @@ import {
   CANVAS_SAFE_PADDING,
   COMPONENT_PADDING_BASE,
   COMPONENT_PADDING_MIN,
+  COMPONENT_ROW_CLUSTER_MIN_RATIO,
   COMPONENT_ROW_CLUSTER_RATIO,
   DETECTED_MODE,
   DETECTION_SCORE_MAX,
+  FRAME_OVERLAP_MIN_SIZE,
   HALF_DIVISOR,
   MIN_COUNT_INPUT,
   MIN_NUMERIC_INPUT
@@ -68,11 +70,16 @@ export function componentBoundsToFrames(bounds: ComponentBounds[], imageWidth: n
 
 function assignRowsAndColumns(frames: FrameRect[]): FrameRect[] {
   const medianHeight = median(frames.map((frame) => frame.height));
-  const rowTolerance = Math.max(MIN_COUNT_INPUT, Math.round(medianHeight * COMPONENT_ROW_CLUSTER_RATIO));
+  const minHeight = Math.min(...frames.map((frame) => frame.height));
+  const rowTolerance = Math.max(
+    MIN_COUNT_INPUT,
+    Math.round(medianHeight * COMPONENT_ROW_CLUSTER_RATIO),
+    Math.round(minHeight * COMPONENT_ROW_CLUSTER_MIN_RATIO)
+  );
   const rows: FrameRect[][] = [];
 
   for (const frame of [...frames].sort((left, right) => centerY(left) - centerY(right) || left.x - right.x)) {
-    const row = rows.find((candidate) => Math.abs(centerY(candidate[MIN_NUMERIC_INPUT] ?? frame) - centerY(frame)) <= rowTolerance);
+    const row = rows.find((candidate) => Math.abs(median(candidate.map(centerY)) - centerY(frame)) <= rowTolerance);
     if (row) {
       row.push(frame);
       continue;
@@ -82,10 +89,30 @@ function assignRowsAndColumns(frames: FrameRect[]): FrameRect[] {
   }
 
   return rows
-    .map((row, rowIndex) => row.sort((left, right) => left.x - right.x).map((frame, columnIndex) => ({ ...frame, row: rowIndex, column: columnIndex })))
+    .map((row, rowIndex) => trimRowOverlaps(row.sort((left, right) => left.x - right.x)).map((frame, columnIndex) => ({ ...frame, row: rowIndex, column: columnIndex })))
     .flat()
     .map((frame, index) => ({ ...frame, index }))
     .sort((left, right) => left.index - right.index);
+}
+
+function trimRowOverlaps(row: FrameRect[]): FrameRect[] {
+  const nextRow = row.map((frame) => ({ ...frame }));
+
+  for (let index = MIN_NUMERIC_INPUT; index < nextRow.length - MIN_COUNT_INPUT; index += MIN_COUNT_INPUT) {
+    const left = nextRow[index];
+    const right = nextRow[index + MIN_COUNT_INPUT];
+    if (!left || !right) continue;
+    const leftEnd = left.x + left.width;
+    if (leftEnd <= right.x) continue;
+
+    const boundary = Math.round((leftEnd + right.x) / HALF_DIVISOR);
+    const clampedBoundary = Math.max(left.x + FRAME_OVERLAP_MIN_SIZE, Math.min(right.x + right.width - FRAME_OVERLAP_MIN_SIZE, boundary));
+    left.width = Math.max(FRAME_OVERLAP_MIN_SIZE, clampedBoundary - left.x);
+    right.width = Math.max(FRAME_OVERLAP_MIN_SIZE, right.x + right.width - clampedBoundary);
+    right.x = clampedBoundary;
+  }
+
+  return nextRow;
 }
 
 function centerY(frame: FrameRect): number {

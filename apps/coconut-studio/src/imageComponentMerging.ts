@@ -1,5 +1,6 @@
 import {
   COMPONENT_ACCESSORY_AREA_RATIO,
+  COMPONENT_ACCESSORY_SPAN_RATIO,
   COMPONENT_STRONG_PROXIMITY_OVERLAP_RATIO,
   HALF_DIVISOR,
   MIN_NUMERIC_INPUT
@@ -33,7 +34,7 @@ export function mergeNearbyComponents(components: ComponentBounds[], padding: nu
 
 function shouldMergeComponents(left: ComponentBounds, right: ComponentBounds, padding: number): boolean {
   if (!boxesOverlap(left, right, padding)) return false;
-  if (isAccessoryComponent(left, right) || isAccessoryComponent(right, left)) return true;
+  if (isAccessoryComponent(left, right, padding) || isAccessoryComponent(right, left, padding)) return true;
   if (componentGap(left, right) > padding / HALF_DIVISOR) return false;
 
   return horizontalOverlapRatio(left, right) >= COMPONENT_STRONG_PROXIMITY_OVERLAP_RATIO
@@ -55,8 +56,12 @@ function boxesOverlap(left: ComponentBounds, right: ComponentBounds, padding: nu
     && left.maxY + padding >= right.minY;
 }
 
-function isAccessoryComponent(candidate: ComponentBounds, anchor: ComponentBounds): boolean {
-  return candidate.area <= anchor.area * COMPONENT_ACCESSORY_AREA_RATIO;
+function isAccessoryComponent(candidate: ComponentBounds, anchor: ComponentBounds, padding: number): boolean {
+  if (candidate.area > anchor.area * COMPONENT_ACCESSORY_AREA_RATIO) return false;
+  if (componentGap(candidate, anchor) > padding) return false;
+
+  return componentWidth(candidate) <= componentWidth(anchor) * COMPONENT_ACCESSORY_SPAN_RATIO
+    || componentHeight(candidate) <= componentHeight(anchor) * COMPONENT_ACCESSORY_SPAN_RATIO;
 }
 
 function componentGap(left: ComponentBounds, right: ComponentBounds): number {
@@ -78,6 +83,14 @@ function horizontalOverlapRatio(left: ComponentBounds, right: ComponentBounds): 
 
 function verticalOverlapRatio(left: ComponentBounds, right: ComponentBounds): number {
   return overlapRatio(left.minY, left.maxY, right.minY, right.maxY);
+}
+
+function componentWidth(component: ComponentBounds): number {
+  return component.maxX - component.minX + 1;
+}
+
+function componentHeight(component: ComponentBounds): number {
+  return component.maxY - component.minY + 1;
 }
 
 function overlapRatio(leftMin: number, leftMax: number, rightMin: number, rightMax: number): number {
