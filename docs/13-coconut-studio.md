@@ -31,6 +31,8 @@ A primeira versão oferece:
 
 ## Fluxo esperado
 
+O guia operacional completo fica em `docs/18-guia-coconut-studio.md`.
+
 ```bash
 pnpm dev:studio
 ```

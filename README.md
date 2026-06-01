@@ -21,6 +21,17 @@ pnpm dev:studio
 
 `pnpm quality` executa a validação completa local: TypeScript, ESLint, configs do jogo de exemplo e testes Rust do `coconut-vision`.
 
+## Coconut Studio
+
+O Studio é a interface web/local para importar arte bruta, ajustar grid, detectar figuras, revisar frames e exportar plano JSON.
+
+```bash
+pnpm dev:studio      # web em http://localhost:5174
+pnpm studio:tauri dev # desktop local com Tauri e Coconut Vision
+```
+
+O guia completo fica em `docs/18-guia-coconut-studio.md`.
+
 ## Desenvolvimento com Docker
 
 ```bash
