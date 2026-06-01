@@ -79,6 +79,13 @@ Em Linux com Wayland/Hyprland/NVIDIA, use:
 make studio-tauri-linux
 ```
 
+Se a porta `5174` estiver ocupada por um Vite antigo ou pelo Studio em Docker, libere antes:
+
+```bash
+make free-studio-port
+make studio-tauri-linux
+```
+
 Ou execute direto pelo pacote:
 
 ```bash

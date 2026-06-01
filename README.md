@@ -33,6 +33,7 @@ Atalhos principais:
 make help
 make install
 make dev-studio
+make free-studio-port
 make studio-tauri-linux
 make dev-pixi
 make quality

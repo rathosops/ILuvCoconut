@@ -56,6 +56,13 @@ Em Linux com Wayland/Hyprland/NVIDIA:
 make studio-tauri-linux
 ```
 
+Se aparecer `Port 5174 is already in use`:
+
+```bash
+make free-studio-port
+make studio-tauri-linux
+```
+
 Ou pelo pacote:
 
 ```bash

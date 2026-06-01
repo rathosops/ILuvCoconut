@@ -2,7 +2,7 @@ PNPM ?= npx -y pnpm@9.15.0
 TAURI_LINUX_ENV ?= GDK_BACKEND=x11 WEBKIT_DISABLE_DMABUF_RENDERER=1
 
 .PHONY: help install typecheck lint validate test rust-test quality \
-	dev-pixi dev-studio studio-tauri studio-tauri-linux \
+	dev-pixi dev-studio free-studio-port studio-tauri studio-tauri-linux \
 	build-pixi build-studio build docker-pixi docker-studio docker-stop-studio \
 	docker-quality docker-build docker-prod assets-inspect clean
 
@@ -15,6 +15,7 @@ help:
 	@printf '%s\n' 'Development:'
 	@printf '%s\n' '  make dev-pixi             Run Pixi player web app'
 	@printf '%s\n' '  make dev-studio           Run Coconut Studio in browser'
+	@printf '%s\n' '  make free-studio-port     Stop stale Studio dev server on port 5174'
 	@printf '%s\n' '  make studio-tauri         Run Coconut Studio with Tauri'
 	@printf '%s\n' '  make studio-tauri-linux   Run Tauri with Linux X11/WebKitGTK workaround'
 	@printf '%s\n' ''
@@ -64,10 +65,19 @@ dev-pixi:
 dev-studio:
 	$(PNPM) dev:studio
 
-studio-tauri:
+free-studio-port:
+	@docker compose stop studio >/dev/null 2>&1 || true
+	@pid=$$(ss -ltnp 'sport = :5174' 2>/dev/null | sed -n 's/.*pid=\([0-9][0-9]*\).*/\1/p' | head -n 1); \
+	if [ -n "$$pid" ]; then \
+		echo "Stopping stale Coconut Studio dev server on port 5174 (pid $$pid)"; \
+		kill -TERM "$$pid" || true; \
+		sleep 1; \
+	fi
+
+studio-tauri: free-studio-port
 	$(PNPM) studio:tauri dev
 
-studio-tauri-linux:
+studio-tauri-linux: free-studio-port
 	$(TAURI_LINUX_ENV) $(PNPM) studio:tauri dev
 
 build-pixi:

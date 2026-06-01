@@ -136,6 +136,25 @@ Comando equivalente:
 env GDK_BACKEND=x11 WEBKIT_DISABLE_DMABUF_RENDERER=1 npx -y pnpm@9.15.0 studio:tauri dev
 ```
 
+### Porta 5174 em uso
+
+O Studio usa Vite na porta `5174`, e o `tauri.conf.json` aponta `devUrl` para `http://localhost:5174`. A configuração do Vite usa `strictPort: true` para impedir que o servidor mude silenciosamente para outra porta, porque o Tauri precisa abrir exatamente a URL configurada.
+
+Se aparecer:
+
+```txt
+Error: Port 5174 is already in use
+```
+
+use:
+
+```bash
+make free-studio-port
+make studio-tauri-linux
+```
+
+O alvo `free-studio-port` para o container Docker do Studio, quando existir, e encerra um servidor Vite antigo escutando em `5174`.
+
 ## Windows
 
 O runtime web funciona no Windows com Node.js, pnpm e os comandos npm/pnpm. Para o Studio desktop com Tauri, instale também as dependências nativas.
@@ -213,6 +232,7 @@ Comandos úteis:
 make help
 make install
 make dev-studio
+make free-studio-port
 make studio-tauri-linux
 make dev-pixi
 make typecheck
@@ -247,7 +267,7 @@ make dev-studio
 Tauri em Arch/Hyprland/NVIDIA:
 
 ```bash
-make docker-stop-studio
+make free-studio-port
 make studio-tauri-linux
 ```
 
