@@ -1,15 +1,18 @@
 import { DETECTED_MODE, MIN_COUNT_INPUT, MIN_NUMERIC_INPUT } from './studioConstants';
+import { removeSymbolForFrame } from './symbolManager';
 import type { FrameRect, StudioState } from './types';
 
 interface DeleteSelectedFrameOptions {
   draw: () => void;
+  onFramesChanged?: () => void;
   setStatus: (value: string) => void;
   state: StudioState;
 }
 
-export function deleteSelectedDetectedFrame({ draw, setStatus, state }: DeleteSelectedFrameOptions): void {
+export function deleteSelectedDetectedFrame({ draw, onFramesChanged, setStatus, state }: DeleteSelectedFrameOptions): void {
   if (state.frameMode !== DETECTED_MODE || state.detectedFrames.length === MIN_NUMERIC_INPUT) return;
   const currentIndex = state.selectedFrame;
+  removeSymbolForFrame(state, currentIndex);
   state.detectedFrames = state.detectedFrames
     .filter((frame) => frame.index !== currentIndex)
     .map((frame, index) => ({ ...frame, index }));
@@ -23,6 +26,7 @@ export function deleteSelectedDetectedFrame({ draw, setStatus, state }: DeleteSe
       }
     : undefined;
   setStatus('Frame removido da selecao.');
+  onFramesChanged?.();
   draw();
 }
 

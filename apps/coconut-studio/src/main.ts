@@ -3,11 +3,17 @@ import { detectFiguresWithCoconutVision, isCoconutVisionRuntimeAvailable } from 
 import { drawStudioCanvas } from './canvasRenderer';
 import { deleteSelectedDetectedFrame } from './detectedFrameActions';
 import { getCanvasContext, getElement, getInputTarget } from './dom';
-import { createExportPlan } from './exportPlan';
 import { bindFrameEditing } from './frameEditingController';
 import { getFrames } from './frameMath';
 import { detectFiguresWithHeuristic, sampleBackgroundColor } from './imageDetection';
+import { bindJsonPreviewControls, copyExportPlan, updateJsonPreview } from './jsonPreviewController';
+import { createDefaultPaytable, syncPaytableWithState } from './paytable';
+import { bindPaytableControls, syncPaytableControls } from './paytableControls';
 import { bindProjectControls, syncLanguage } from './projectControls';
+import { bindSlotLayoutControls, syncSlotLayoutControls } from './slotLayoutControls';
+import { createDefaultSlotLayout } from './slotLayout';
+import { bindSymbolControls, syncSymbolInspector } from './symbolControls';
+import { syncSymbolsWithFrames } from './symbolManager';
 import {
   DEFAULT_BACKGROUND_COLOR,
   DEFAULT_DETECTION_MIN_AREA,
@@ -15,12 +21,13 @@ import {
   DEFAULT_GRID,
   DEFAULT_LANGUAGE,
   DEFAULT_PROJECT_TYPE,
+  DEFAULT_SLOT_REELS,
+  DEFAULT_SLOT_ROWS,
   DEFAULT_ZOOM,
   COCONUT_VISION_BACKEND,
   DETECTED_MODE,
   GRID_MODE,
   HEURISTIC_BACKEND,
-  JSON_INDENT_SPACES,
   MAX_COLOR_CHANNEL,
   MAX_ZOOM,
   MIN_COUNT_INPUT,
@@ -45,7 +52,11 @@ const state: StudioState = {
   detectedFrames: [],
   detectionSummary: undefined,
   language: DEFAULT_LANGUAGE,
-  projectType: DEFAULT_PROJECT_TYPE
+  projectType: DEFAULT_PROJECT_TYPE,
+  selectedJsonPreview: 'exportPlan',
+  slotLayout: createDefaultSlotLayout(),
+  paytable: createDefaultPaytable(DEFAULT_SLOT_REELS, DEFAULT_SLOT_ROWS),
+  symbols: []
 };
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -74,9 +85,8 @@ getElement<HTMLButtonElement>('detectedMode').addEventListener('click', () => { 
 getElement<HTMLButtonElement>('coconutVisionBackend').addEventListener('click', () => { setDetectionBackend(COCONUT_VISION_BACKEND); });
 getElement<HTMLButtonElement>('heuristicBackend').addEventListener('click', () => { setDetectionBackend(HEURISTIC_BACKEND); });
 getElement<HTMLButtonElement>('deleteFrame').addEventListener('click', () => {
-  deleteSelectedDetectedFrame({ draw, setStatus, state });
+  deleteSelectedDetectedFrame({ draw, onFramesChanged: () => { syncPaytableControls(state); }, setStatus, state });
 });
-
 getElement<HTMLButtonElement>('sampleBackground').addEventListener('click', () => {
   if (!state.image) return;
   state.backgroundColor = sampleBackgroundColor(state.image);
@@ -110,26 +120,25 @@ getElement<HTMLButtonElement>('zoomOut').addEventListener('click', () => {
 });
 
 getElement<HTMLButtonElement>('exportPlan').addEventListener('click', () => {
-  const plan = createExportPlan({
-    assetPrefix: getElement<HTMLInputElement>('assetPrefix').value,
-    gameId: getElement<HTMLInputElement>('gameId').value,
-    projectType: state.projectType,
-    state
-  });
-  void navigator.clipboard.writeText(JSON.stringify(plan, null, JSON_INDENT_SPACES));
-  setStatus('Plano JSON copiado para a area de transferencia.');
+  copyExportPlan(createJsonPreviewOptions());
 });
 
 bindFrameEditing({ draw, sheetCanvas, state });
+bindJsonPreviewControls(createJsonPreviewOptions(), draw);
+bindPaytableControls({ draw, state });
 bindProjectControls({ draw, setStatus, state, syncFrameModeButtons, updateBackgroundSwatch });
+bindSlotLayoutControls({ draw, onLayoutChanged: () => { syncPaytableControls(state); }, state });
+bindSymbolControls({ draw, getAssetPrefix, onSymbolsChanged: () => { syncPaytableControls(state); }, state });
 document.addEventListener('keydown', (event) => {
   if (event.key !== 'Delete' && event.key !== 'Backspace') return;
   if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) return;
-  deleteSelectedDetectedFrame({ draw, setStatus, state });
+  deleteSelectedDetectedFrame({ draw, onFramesChanged: () => { syncPaytableControls(state); }, setStatus, state });
 });
 
 syncFrameModeButtons();
 syncDetectionBackendButtons();
+syncSlotLayoutControls(state);
+syncPaytableControls(state);
 syncLanguage(state);
 setInitialRuntimeStatus();
 draw();
@@ -153,15 +162,22 @@ async function loadImageFile(file: File): Promise<void> {
   state.imageUrl = imageUrl;
   state.selectedFrame = MIN_NUMERIC_INPUT;
   state.detectedFrames = [];
+  state.symbols = [];
+  state.paytable = createDefaultPaytable(state.slotLayout.reels, state.slotLayout.rows);
   state.detectionSummary = undefined;
   state.backgroundColor = sampleBackgroundColor(image);
   updateBackgroundSwatch();
+  syncPaytableControls(state);
   setStatus(`${file.name} carregado: ${image.naturalWidth}x${image.naturalHeight}`);
   draw();
 }
 
 function draw(): void {
   updateZoomLabel();
+  syncSymbolsWithFrames(state, getAssetPrefix());
+  syncPaytableWithState(state);
+  syncSymbolInspector(state);
+  updateJsonPreview(createJsonPreviewOptions());
   drawStudioCanvas({
     previewCanvas,
     previewContext,
@@ -172,6 +188,18 @@ function draw(): void {
   });
 }
 
+function createJsonPreviewOptions(): Parameters<typeof updateJsonPreview>[0] {
+  return { getAssetPrefix, getGameId, setStatus, state };
+}
+
+function getAssetPrefix(): string {
+  return getElement<HTMLInputElement>('assetPrefix').value;
+}
+
+function getGameId(): string {
+  return getElement<HTMLInputElement>('gameId').value;
+}
+
 async function detectFigures(): Promise<void> {
   if (!state.image) return;
   state.backgroundColor = sampleBackgroundColor(state.image);
@@ -180,11 +208,15 @@ async function detectFigures(): Promise<void> {
   try {
     const result = await detectFiguresWithPreferredBackend();
     state.detectedFrames = result.frames;
+    syncSymbolsWithFrames(state, getAssetPrefix());
+    syncPaytableControls(state);
     state.detectionSummary = result.summary;
     setStatus(formatDetectionSummary(result.summary));
   } catch (error: unknown) {
     const result = detectFiguresWithHeuristic(state.image, state.backgroundColor, state.detectionThreshold, state.detectionMinArea);
     state.detectedFrames = result.frames;
+    syncSymbolsWithFrames(state, getAssetPrefix());
+    syncPaytableControls(state);
     state.detectionSummary = result.summary;
     setStatus(`${getBackendLabel(state.detectionBackend)} indisponivel; fallback leve usado. ${formatDetectionSummary(result.summary)} ${error instanceof Error ? error.message : ''}`.trim());
   }

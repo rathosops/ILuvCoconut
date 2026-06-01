@@ -29,6 +29,13 @@ O renderer Pixi deve implementar:
 - profiling;
 - quality profiles.
 
+Estado atual:
+
+- `apps/player-pixi` carrega `game.config.json` e fixtures via `/games/<game-id>` usando `?game=` e `?fixture=`.
+- `@iluvcoconut/core` planeja a timeline e usa `FixtureSpinProvider` para spins mockados.
+- `@iluvcoconut/pixi` renderiza reels/celulas reutilizaveis, troca simbolos no stop, destaca posições vencedoras e mostra textos de win/big win.
+- `?debug=1` habilita HUD/diagnostico inicial no player.
+
 ## Cocos
 
 Cocos é um renderer/editor opcional.

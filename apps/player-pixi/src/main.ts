@@ -1,53 +1,34 @@
-import type { GameConfig, SpinResult } from '@iluvcoconut/contracts';
 import { FixtureSpinProvider, SlotRuntime } from '@iluvcoconut/core';
 import { PixiCoconutRenderer } from '@iluvcoconut/pixi';
+import { loadGameBundle } from './gameLoader';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) throw new Error('Missing #app element');
 
-const DEFAULT_BET_MIN = 0.2;
-const BET_DENOMINATION_HALF = 0.5;
-const BET_DENOMINATION_FIVE = 5;
-const BET_DENOMINATION_TEN = 10;
-
-const config: GameConfig = {
-  id: 'fruit-classic',
-  title: 'Fruit Classic',
-  template: 'slot-5x3-classic',
-  layout: { reels: 5, rows: 3, mode: 'paylines' },
-  bet: { default: 1, min: DEFAULT_BET_MIN, max: 100, denominations: [DEFAULT_BET_MIN, BET_DENOMINATION_HALF, 1, 2, BET_DENOMINATION_FIVE, BET_DENOMINATION_TEN] },
-  symbols: [
-    { id: 'cherry', type: 'regular' },
-    { id: 'lemon', type: 'regular' },
-    { id: 'seven', type: 'regular' },
-    { id: 'wild', type: 'wild' },
-    { id: 'scatter', type: 'scatter' }
-  ],
-  presentation: { spinDurationMs: 600, reelStopDelayMs: 120, winCycleDelayMs: 800, turboMode: true, quickSpin: true },
-  assetManifest: { gameId: 'fruit-classic', version: '0.1.0', assets: [] }
-};
-
-const fixture: SpinResult = {
-  roundId: 'fixture-001',
-  gameId: 'fruit-classic',
-  betAmount: 1,
-  matrix: [
-    ['cherry', 'seven', 'lemon', 'wild', 'scatter'],
-    ['lemon', 'seven', 'seven', 'seven', 'cherry'],
-    ['bar', 'lemon', 'wild', 'cherry', 'lemon']
-  ],
-  wins: [
-    { id: 'win-001', type: 'line', symbolId: 'seven', amount: 50, positions: [{ reel: 1, row: 1 }, { reel: 2, row: 1 }, { reel: 3, row: 1 }] }
-  ],
-  totalWin: 50,
-  presentation: { bigWinLevel: 'big' }
-};
-
+const { config, fixture, params } = await loadGameBundle();
 const renderer = new PixiCoconutRenderer();
-await renderer.init({ parent: app, quality: 'high', debug: true });
+await renderer.init({ parent: app, quality: params.quality, debug: params.debug });
 const runtime = new SlotRuntime(renderer, new FixtureSpinProvider(fixture), config);
 await runtime.boot();
+createHud(config.title, params.gameId, params.fixtureId, params.debug);
 
-window.addEventListener('click', () => {
-  void runtime.spin();
-});
+window.addEventListener('click', () => { void runtime.spin(); });
+
+function createHud(title: string, gameId: string, fixtureId: string, debug: boolean): void {
+  const hud = document.querySelector<HTMLDivElement>('#hud') ?? document.createElement('div');
+  hud.id = 'hud';
+  hud.style.cssText = [
+    'position:fixed',
+    'left:16px',
+    'top:16px',
+    'z-index:10',
+    'padding:10px 12px',
+    'border:1px solid rgba(94,213,138,0.45)',
+    'border-radius:8px',
+    'color:#dfffea',
+    'background:rgba(4,16,12,0.78)',
+    'font:12px system-ui'
+  ].join(';');
+  hud.textContent = `${title} | game=${gameId} | fixture=${fixtureId}${debug ? ' | debug=1' : ''} | clique para spin`;
+  document.body.appendChild(hud);
+}

@@ -200,6 +200,10 @@ label + label {
   margin-top: 0;
 }
 
+.section-subgrid {
+  margin-top: 10px;
+}
+
 .segmented,
 .tool-row {
   display: flex;
@@ -316,6 +320,90 @@ label + label {
   border-color: #71403d;
   background: #2a1718;
   color: #ffd9d5;
+}
+
+.symbol-form {
+  display: grid;
+  gap: 10px;
+}
+
+.symbol-form label + label {
+  margin-top: 0;
+}
+
+.symbol-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.checkbox-stack {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.checkbox-stack label,
+.checkbox-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-stack input,
+.checkbox-line input {
+  width: auto;
+  min-height: 0;
+}
+
+.payout-rows {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.payout-row {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  gap: 8px;
+}
+
+.payout-row + .payout-row,
+.checkbox-line {
+  margin-top: 0;
+}
+
+.full-button {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.empty-note {
+  color: #9fb9ac;
+  font-size: 12px;
+}
+
+.json-validation {
+  min-height: 28px;
+  margin-top: 8px;
+  color: #d3c58d;
+  font-size: 12px;
+}
+
+.json-preview {
+  max-height: 260px;
+  margin: 8px 0;
+  border: 1px solid #294238;
+  border-radius: 6px;
+  padding: 10px;
+  overflow: auto;
+  color: #d6eadf;
+  background: #07100d;
+  font-family: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre;
 }
 
 ol {

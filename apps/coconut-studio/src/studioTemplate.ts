@@ -5,6 +5,15 @@ import {
   DEFAULT_DETECTION_THRESHOLD,
   DEFAULT_GAME_ID,
   DEFAULT_GRID,
+  DEFAULT_SLOT_CELL_SIZE,
+  DEFAULT_SLOT_DESKTOP_HEIGHT,
+  DEFAULT_SLOT_DESKTOP_WIDTH,
+  DEFAULT_SLOT_MOBILE_HEIGHT,
+  DEFAULT_SLOT_MOBILE_WIDTH,
+  DEFAULT_SLOT_REEL_GAP,
+  DEFAULT_SLOT_REELS,
+  DEFAULT_SLOT_ROW_GAP,
+  DEFAULT_SLOT_ROWS,
   MAX_COLOR_CHANNEL,
   MIN_COUNT_INPUT,
   MIN_NUMERIC_INPUT,
@@ -63,6 +72,24 @@ const STUDIO_SHELL_TEMPLATE = `
             <option value="free">Livre</option>
           </select>
           <div id="projectTypeDescription" class="hint"></div>
+        </section>
+
+        <section>
+          <h2>Slot layout</h2>
+          <div class="control-grid">
+            <label>Reels<input id="slotReels" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_REELS}" /></label>
+            <label><span data-i18n="rows">Linhas</span><input id="slotRows" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_ROWS}" /></label>
+            <label>Cell W<input id="slotCellWidth" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_CELL_SIZE}" /></label>
+            <label>Cell H<input id="slotCellHeight" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_CELL_SIZE}" /></label>
+            <label>Reel gap<input id="slotReelGap" type="number" min="${MIN_NUMERIC_INPUT}" value="${DEFAULT_SLOT_REEL_GAP}" /></label>
+            <label>Row gap<input id="slotRowGap" type="number" min="${MIN_NUMERIC_INPUT}" value="${DEFAULT_SLOT_ROW_GAP}" /></label>
+          </div>
+          <div class="control-grid section-subgrid">
+            <label>Desktop W<input id="slotDesktopWidth" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_DESKTOP_WIDTH}" /></label>
+            <label>Desktop H<input id="slotDesktopHeight" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_DESKTOP_HEIGHT}" /></label>
+            <label>Mobile W<input id="slotMobileWidth" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_MOBILE_WIDTH}" /></label>
+            <label>Mobile H<input id="slotMobileHeight" type="number" min="${MIN_COUNT_INPUT}" value="${DEFAULT_SLOT_MOBILE_HEIGHT}" /></label>
+          </div>
         </section>
 
         <section>
@@ -126,6 +153,28 @@ const STUDIO_SHELL_TEMPLATE = `
           </div>
         </section>
         <section>
+          <h2 data-i18n="symbolManager">Símbolo</h2>
+          <div class="symbol-form">
+            <label><span data-i18n="symbolId">ID</span><input id="symbolId" /></label>
+            <label><span data-i18n="symbolLabel">Nome</span><input id="symbolLabel" /></label>
+            <label>
+              <span data-i18n="symbolRole">Papel</span>
+              <select id="symbolRole">
+                <option value="regular">regular</option>
+                <option value="wild">wild</option>
+                <option value="scatter">scatter</option>
+                <option value="bonus">bonus</option>
+                <option value="multiplier">multiplier</option>
+                <option value="decorative">decorative</option>
+              </select>
+            </label>
+            <div class="symbol-actions">
+              <button id="moveSymbolUp" type="button">↑</button>
+              <button id="moveSymbolDown" type="button">↓</button>
+            </div>
+          </div>
+        </section>
+        <section>
           <h2 data-i18n="pipeline">Pipeline</h2>
           <ol id="pipelineList">
             <li data-i18n="pipelineProject">Escolher template</li>
@@ -134,6 +183,55 @@ const STUDIO_SHELL_TEMPLATE = `
             <li data-i18n="pipelineExport">Exportar plano</li>
             <li data-i18n="pipelineRuntime">Integrar runtime</li>
           </ol>
+        </section>
+        <section>
+          <h2 data-i18n="paytable">Paytable</h2>
+          <div class="control-grid">
+            <label><span data-i18n="lineBet">Aposta linha</span><input id="paytableLineBet" type="number" min="${MIN_COUNT_INPUT}" value="1" /></label>
+            <label><span data-i18n="minMatch">Mín. match</span><input id="paytableMinMatch" type="number" min="${MIN_COUNT_INPUT}" value="3" /></label>
+          </div>
+          <label class="section-subgrid">
+            <span data-i18n="evaluation">Avaliação</span>
+            <select id="paytableEvaluation">
+              <option value="leftToRight">leftToRight</option>
+              <option value="rightToLeft">rightToLeft</option>
+              <option value="bothWays">bothWays</option>
+            </select>
+          </label>
+          <div class="checkbox-stack">
+            <label><input id="paytableWildSubstitutes" type="checkbox" checked /> <span data-i18n="wildSubstitutes">Wild substitui</span></label>
+            <label><input id="paytableScatterAnywhere" type="checkbox" checked /> <span data-i18n="scatterAnywhere">Scatter em qualquer posição</span></label>
+            <label><input id="paytableBonusAnywhere" type="checkbox" checked /> <span data-i18n="bonusAnywhere">Bonus em qualquer posição</span></label>
+            <label><input id="paytableHighestOnly" type="checkbox" checked /> <span data-i18n="highestOnly">Maior prêmio por linha</span></label>
+          </div>
+          <label class="section-subgrid">
+            <span data-i18n="symbolPayouts">Prêmios por símbolo</span>
+            <select id="paytableSymbol"></select>
+          </label>
+          <div id="payoutRows" class="payout-rows"></div>
+          <label class="section-subgrid">
+            <span data-i18n="payline">Linha</span>
+            <select id="paytableLine"></select>
+          </label>
+          <label class="checkbox-line"><input id="paylineEnabled" type="checkbox" checked /> <span data-i18n="enabled">Ativa</span></label>
+          <label>
+            <span data-i18n="paylinePattern">Padrão da linha</span>
+            <input id="paylinePattern" placeholder="1,1,1,1,1" />
+          </label>
+          <button id="resetPaylines" class="full-button" type="button" data-i18n="resetPaylines">Resetar linhas</button>
+        </section>
+        <section>
+          <h2 data-i18n="jsonPreview">JSON</h2>
+          <select id="jsonPreviewKind">
+            <option value="exportPlan" selected>Export plan</option>
+            <option value="slotDraft">Slot draft</option>
+            <option value="gameConfig">game.config.json</option>
+            <option value="themeConfig">theme.config.json</option>
+            <option value="paytableConfig">paytable.config.json</option>
+          </select>
+          <div id="jsonValidation" class="json-validation"></div>
+          <pre id="jsonPreview" class="json-preview">{}</pre>
+          <button id="copyJsonPreview" type="button">Copiar JSON</button>
         </section>
       </aside>
 

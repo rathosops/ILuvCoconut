@@ -1,3 +1,5 @@
+import type { SlotEvaluationMode, SymbolRole } from '@iluvcoconut/contracts';
+
 export type FrameMode = 'grid' | 'detected';
 export type DetectionBackend = 'heuristic' | 'coconutVision';
 export type GameProjectType = 'slot' | 'bingo' | 'pachinko' | 'free';
@@ -37,6 +39,10 @@ export interface StudioState {
   detectionSummary?: DetectionSummary | undefined;
   language: StudioLanguage;
   projectType: GameProjectType;
+  selectedJsonPreview: JsonPreviewKind;
+  slotLayout: StudioSlotLayout;
+  paytable: StudioPaytable;
+  symbols: StudioSymbol[];
 }
 
 export interface FrameRect {
@@ -70,4 +76,60 @@ export interface DetectionSummary {
   figuresByRow: number[];
   analysisScale: number;
   elapsedMs: number;
+}
+
+export type JsonPreviewKind = 'exportPlan' | 'slotDraft' | 'gameConfig' | 'themeConfig' | 'paytableConfig';
+
+export interface StudioSymbol {
+  assetKey: string;
+  frameIndex: number;
+  id: string;
+  label: string;
+  order: number;
+  role: SymbolRole;
+}
+
+export interface StudioSlotLayout {
+  cellHeight: number;
+  cellWidth: number;
+  desktopHeight: number;
+  desktopWidth: number;
+  mobileHeight: number;
+  mobileWidth: number;
+  reelGap: number;
+  reels: number;
+  rowGap: number;
+  rows: number;
+}
+
+export interface StudioPaytable {
+  bonusTriggersAnywhere: boolean;
+  evaluation: SlotEvaluationMode;
+  highestWinOnlyPerLine: boolean;
+  lineBet: number;
+  minMatch: number;
+  paylines: StudioPayline[];
+  scatterPaysAnywhere: boolean;
+  selectedPaylineId: string;
+  selectedSymbolId: string;
+  symbolPays: StudioSymbolPay[];
+  wildSubstitutes: boolean;
+}
+
+export interface StudioPayline {
+  enabled: boolean;
+  id: string;
+  order: number;
+  pattern: number[];
+}
+
+export interface StudioSymbolPay {
+  payouts: StudioPayout[];
+  role: SymbolRole;
+  symbolId: string;
+}
+
+export interface StudioPayout {
+  count: number;
+  multiplier: number;
 }

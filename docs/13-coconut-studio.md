@@ -28,6 +28,9 @@ A primeira versão oferece:
 - seleção e preview de frames;
 - redimensionamento manual de frames detectados por 8 handles;
 - remoção manual de frames detectados como falsos positivos;
+- configuração inicial de layout de slot: rolos, linhas, célula, gaps e resoluções desktop/mobile;
+- editor inicial de paytable demo com apostas por linha, regras, payouts por símbolo e paylines;
+- preview JSON de `Export plan`, `Slot draft`, `game.config`, `theme.config` e `paytable.config`;
 - detecção de cor de fundo por amostragem dos cantos;
 - auto-detect de figuras por diferença de cor e componentes conectados;
 - simulação visual de fundo claro;
@@ -81,6 +84,10 @@ O código do Studio é dividido por responsabilidade para evitar arquivos coloss
 - `frameMath.ts`: calcula grids, bounding boxes, seleção e posicionamento no canvas.
 - `frameEditing.ts` e `frameEditingController.ts`: controlam handles de resize e pointer capture.
 - `detectedFrameActions.ts`: reúne ações sobre frames detectados, como remoção.
+- `slotLayout.ts` e `slotLayoutControls.ts`: mantêm dimensões e resolução do slot.
+- `paytable.ts` e `paytableControls.ts`: mantêm regras, payouts e paylines editáveis.
+- `slotProjectDraft.ts` e `slotConfigExport.ts`: derivam drafts e configs finais para preview JSON.
+- `jsonPreviewController.ts`: atualiza e copia o JSON exibido no inspector.
 - `imageDetection.ts`: executa a heurística leve de máscara e componentes conectados.
 - `coconutVision.ts`: chama o backend Rust quando o Studio roda no Tauri.
 - `canvasRenderer.ts`: desenha imagem, overlays, checkerboard e preview.
@@ -128,6 +135,7 @@ Para avançar além da heurística leve:
 
 ## Próximos passos
 
+- Evoluir o Studio para preview visual da grade do slot e integração runtime conforme `docs/20-sdd-montagem-slots-paytable-runtime.md`.
 - Conectar o Studio ao `@iluvcoconut/asset-pipeline` via comandos Tauri.
 - Integrar o Studio ao `coconut-vision` via Tauri command.
 - Usar `pnpm ilc raw:detect-symbols` para crop final por arquivo quando o resultado revisado estiver pronto para produção.

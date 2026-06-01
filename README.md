@@ -41,7 +41,7 @@ make quality
 
 ## Coconut Studio
 
-O Studio é a interface web/local para criar uma sessão de projeto, escolher tipo de jogo, importar arte bruta, ajustar grid, detectar figuras, revisar/remover/redimensionar frames e exportar plano JSON.
+O Studio é a interface web/local para criar uma sessão de projeto, escolher tipo de jogo, importar arte bruta, ajustar grid, detectar figuras, revisar/remover/redimensionar frames, configurar layout de slot, editar paytable demo e exportar plano JSON.
 
 ```bash
 pnpm dev:studio      # web em http://localhost:5174
@@ -49,6 +49,8 @@ pnpm studio:tauri dev # desktop local com Tauri e Coconut Vision
 ```
 
 O guia completo fica em `docs/18-guia-coconut-studio.md`. Em Linux com Wayland/Hyprland/NVIDIA, prefira `make studio-tauri-linux`.
+
+A evolução de autoria de slots, paytable, layout responsivo e runtime visual está especificada em `docs/20-sdd-montagem-slots-paytable-runtime.md`.
 
 ## Desenvolvimento com Docker
 
@@ -58,6 +60,12 @@ docker compose up studio
 ```
 
 O player Pixi fica disponível em `http://localhost:3000`.
+
+No Vite local, o player também aceita:
+
+```txt
+http://localhost:5173/?game=fruit-classic&fixture=small-win&debug=1
+```
 O Coconut Studio fica disponível em `http://localhost:3002`.
 
 Comandos úteis:

@@ -19,7 +19,13 @@
 
 - Symbol pooling real.
 - Reels visuais reais no Pixi.
+- Player Pixi carregando `games/<game-id>` e fixtures por query string.
 - Asset manifest gerado em arquivo.
+- SDD de montagem de slots, paytable e runtime como guia de implementacao.
+- Preview JSON no Studio para `game.config`, `theme.config` e `paytable.config`.
+- Symbol manager inicial a partir dos frames detectados.
+- Editor inicial de grade/resolucao de slot.
+- Editor inicial de paytable demo com payouts, regras e paylines.
 - Fixtures reais para Coconut Vision com casos `8/8/9`, fundo sólido e fundo gradiente.
 - Debug overlay de detecção/crop no Studio.
 - Fixture selector.
@@ -38,6 +44,8 @@
 ## MVP 0.4
 
 - Paylines visuais.
+- Editor avancado de paytable no Studio, incluindo duplicacao visual de linhas e preview de resultado.
+- Avaliador demo de paylines no Coconut Core.
 - Big win presenter.
 - Audio manager.
 - Quality profiles.

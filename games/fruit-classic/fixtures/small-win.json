@@ -1,0 +1,26 @@
+{
+  "roundId": "fixture-small-win",
+  "gameId": "fruit-classic",
+  "betAmount": 1,
+  "matrix": [
+    ["cherry", "cherry", "cherry", "lemon", "seven"],
+    ["lemon", "seven", "wild", "scatter", "cherry"],
+    ["seven", "lemon", "scatter", "cherry", "lemon"]
+  ],
+  "wins": [
+    {
+      "id": "line-1-cherry",
+      "type": "line",
+      "symbolId": "cherry",
+      "amount": 5,
+      "positions": [
+        { "reel": 0, "row": 0 },
+        { "reel": 1, "row": 0 },
+        { "reel": 2, "row": 0 }
+      ],
+      "lineIndex": 1
+    }
+  ],
+  "totalWin": 5,
+  "presentation": { "bigWinLevel": "none" }
+}

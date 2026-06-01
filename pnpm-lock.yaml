@@ -32,6 +32,9 @@ importers:
 
   apps/coconut-studio:
     dependencies:
+      '@iluvcoconut/contracts':
+        specifier: workspace:*
+        version: link:../../packages/coconut-contracts
       '@tauri-apps/api':
         specifier: ^2.11.0
         version: 2.11.0
@@ -57,6 +60,9 @@ importers:
       '@iluvcoconut/pixi':
         specifier: workspace:*
         version: link:../../packages/coconut-renderer-pixi
+      '@iluvcoconut/renderer-api':
+        specifier: workspace:*
+        version: link:../../packages/coconut-renderer-api
       pixi.js:
         specifier: ^8.0.0
         version: 8.18.1

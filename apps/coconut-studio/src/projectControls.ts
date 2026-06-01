@@ -1,5 +1,7 @@
-import { getElement, getInputTarget } from './dom';
+import { getElement } from './dom';
 import { applyTranslations, getProjectTypeDescription } from './i18n';
+import { resetPaytableControls } from './paytableControls';
+import { resetSlotLayoutControls } from './slotLayoutControls';
 import {
   DEFAULT_ASSET_PREFIX,
   DEFAULT_BACKGROUND_COLOR,
@@ -26,12 +28,14 @@ export function bindProjectControls(options: BindProjectControlsOptions): void {
 
   getElement<HTMLButtonElement>('newProject').addEventListener('click', () => { createNewProject(options); });
   getElement<HTMLSelectElement>('projectType').addEventListener('change', (event) => {
-    state.projectType = getInputTarget(event).value as GameProjectType;
+    if (!(event.currentTarget instanceof HTMLSelectElement)) return;
+    state.projectType = event.currentTarget.value as GameProjectType;
     syncProjectType(state);
     draw();
   });
   getElement<HTMLSelectElement>('languageSelect').addEventListener('change', (event) => {
-    state.language = getInputTarget(event).value as StudioLanguage;
+    if (!(event.currentTarget instanceof HTMLSelectElement)) return;
+    state.language = event.currentTarget.value as StudioLanguage;
     syncLanguage(state);
     draw();
   });
@@ -54,9 +58,13 @@ function createNewProject({ draw, setStatus, state, syncFrameModeButtons, update
   state.detectionThreshold = DEFAULT_DETECTION_THRESHOLD;
   state.detectionMinArea = DEFAULT_DETECTION_MIN_AREA;
   state.projectType = DEFAULT_PROJECT_TYPE;
+  state.selectedJsonPreview = 'exportPlan';
   state.detectedFrames = [];
+  state.symbols = [];
   state.detectionSummary = undefined;
   resetProjectInputs();
+  resetSlotLayoutControls(state);
+  resetPaytableControls(state);
   syncFrameModeButtons();
   syncProjectType(state);
   updateBackgroundSwatch();

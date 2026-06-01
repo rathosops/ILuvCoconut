@@ -107,9 +107,11 @@ O empacotamento final do app desktop ainda não é o foco do projeto. O fluxo su
 7. Revise o overlay no canvas e o preview do frame selecionado.
 8. Em `Figuras`, arraste os 8 pontos do frame selecionado para ajustar manualmente o recorte.
 9. Use `Remover frame` quando um falso positivo for detectado como figura.
-10. Ajuste tolerância, área mínima, grid, zoom e fundo claro conforme necessário.
-11. Clique em `Exportar plano` para copiar o JSON para a área de transferência.
-12. Para crop final, rode o pipeline CLI/Tauri com `coconut-vision` e revise os assets gerados.
+10. Ajuste o `Slot layout` para definir rolos, linhas, células, gaps e resoluções desktop/mobile.
+11. Revise a seção `Paytable` para ajustar regras, payouts por símbolo e paylines demo.
+12. Use o painel `JSON` para conferir `game.config`, `theme.config` e `paytable.config`.
+13. Clique em `Exportar plano` para copiar o JSON para a área de transferência.
+14. Para crop final, rode o pipeline CLI/Tauri com `coconut-vision` e revise os assets gerados.
 
 ## Interface
 
@@ -134,6 +136,17 @@ Tipos disponíveis:
 - `Bingo`: base para cartelas, bolas, chamadas e estados de vitória.
 - `Pachinko`: base para pinos, física, zonas de prêmio e multiplicadores.
 - `Livre`: projeto sem preset rígido para protótipos e ferramentas internas.
+
+### Slot layout
+
+Use para definir a base do slot que será exportada para o draft e para `game.config.json`.
+
+- `Reels`: quantidade de rolos.
+- `Linhas`: quantidade de linhas visíveis.
+- `Cell W` e `Cell H`: tamanho visual de cada célula de símbolo.
+- `Reel gap` e `Row gap`: espaçamento entre rolos e linhas.
+- `Desktop W/H`: resolução de design para desktop.
+- `Mobile W/H`: resolução de design para mobile.
 
 ### Modo
 
@@ -182,7 +195,10 @@ Controles:
 
 - `Frame`: mostra dados do frame selecionado e o preview recortado.
 - `Remover frame`: remove o frame selecionado no modo `Figuras`, útil para falsos positivos.
+- `Símbolo`: permite editar ID, nome, papel e ordem do símbolo selecionado.
+- `Paytable`: permite editar aposta por linha, regra de avaliação, mínimo de combinação, flags de wild/scatter/bonus, payouts por contagem e padrões das paylines.
 - `Pipeline`: lista o fluxo operacional esperado: importar arte, ajustar grid ou detectar figuras, validar preview, exportar plano e rodar pipeline CLI/Tauri.
+- `JSON`: alterna entre plano de exportação, draft do slot e configs derivadas.
 
 ### Status
 
@@ -194,6 +210,21 @@ A barra inferior mostra mensagens curtas de operação:
 - backend usado;
 - fallback quando `coconut-vision` não está disponível;
 - plano JSON copiado.
+
+## Paytable demo
+
+A paytable do Studio é uma configuração frontend/demo para preview, fixtures e QA visual. Ela não substitui matemática certificada nem settlement futuro do RGS.
+
+O Studio gera uma base automaticamente a partir da ordem dos símbolos pagantes. Símbolos `decorative` não entram nos pagamentos. O usuário pode ajustar:
+
+- `Aposta linha`;
+- `Mín. match`;
+- direção de avaliação: `leftToRight`, `rightToLeft` ou `bothWays`;
+- substituição de wild;
+- scatter e bonus em qualquer posição;
+- maior prêmio por linha;
+- multiplicadores por símbolo para 3, 4 e quantidade máxima de rolos;
+- paylines ativas e seus padrões.
 
 ## Detecção de figuras
 
@@ -227,6 +258,7 @@ Use esse backend quando o objetivo for gerar uma detecção mais reprodutível a
 - parâmetros de detecção;
 - backend usado;
 - resumo de detecção quando existir.
+- `Slot draft`, `game.config`, `theme.config` e `paytable.config` podem ser revisados no painel `JSON`.
 
 O plano não substitui os assets finais. Ele serve como contrato intermediário para revisão, integração e automação futura. O JSON exportado também inclui `projectType`, que permite ao pipeline distinguir projetos de slot, bingo, pachinko e fluxos livres.
 

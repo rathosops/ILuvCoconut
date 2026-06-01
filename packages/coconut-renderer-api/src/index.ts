@@ -67,6 +67,7 @@ export interface CoconutTextOptions {
 
 export interface CoconutReelOptions {
   id: string;
+  initialSymbols: SymbolId[];
   rows: number;
   symbolWidth: number;
   symbolHeight: number;

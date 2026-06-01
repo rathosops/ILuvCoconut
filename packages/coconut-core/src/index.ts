@@ -1,7 +1,8 @@
 import type { GameConfig, SpinRequest, SpinResult } from '@iluvcoconut/contracts';
 import type { ICoconutRenderer, PresentationCommand, PresentationTimeline } from '@iluvcoconut/renderer-api';
 
-const REEL_SPACING_PX = 170;
+const REEL_SPACING_PX = 176;
+const SYMBOL_SIZE_PX = 160;
 
 export type SlotState =
   | 'boot'
@@ -116,13 +117,19 @@ export class SlotRuntime {
     for (let i = 0; i < this.config.layout.reels; i += 1) {
       this.renderer.createReel({
         id: `reel-${i}`,
+        initialSymbols: this.createInitialSymbols(i),
         rows: this.config.layout.rows,
-        symbolWidth: 160,
-        symbolHeight: 160,
+        symbolWidth: SYMBOL_SIZE_PX,
+        symbolHeight: SYMBOL_SIZE_PX,
         x: i * REEL_SPACING_PX,
         y: 0
       });
     }
+  }
+
+  private createInitialSymbols(reelIndex: number): string[] {
+    const symbols = this.config.symbols.map((symbol) => symbol.id);
+    return Array.from({ length: this.config.layout.rows }, (_, rowIndex) => symbols[(reelIndex + rowIndex) % Math.max(1, symbols.length)] ?? 'missing');
   }
 }
 
