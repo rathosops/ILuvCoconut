@@ -18,7 +18,7 @@ import {
   MORPHOLOGY_KERNEL_RADIUS,
   RGBA_STRIDE
 } from './studioConstants';
-import { getCanvasContext } from './dom';
+import { getCanvasContext } from './canvasContext';
 import { componentBoundsToFrames } from './frameMath';
 import { mergeNearbyComponents } from './imageComponentMerging';
 import { splitWideComponents } from './imageComponentSplitting';

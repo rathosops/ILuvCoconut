@@ -1,156 +1,115 @@
 # Coconut Studio
 
-Coconut Studio é a interface web/local do ILuvCoconut para facilitar criação de jogos de casino web, tratamento de assets e montagem visual. A ferramenta deve ser leve, rápida e separada do player de produção, mas já deve se comportar como uma engine: projeto, template de jogo, viewport, inspector e pipeline explícito.
+Coconut Studio e a ferramenta de autoria do ILuvCoconut: cria projetos de jogo, trata assets e monta slots visualmente. Ele e leve, separado do player de producao, mas se comporta como uma engine de autoria: projeto, template de jogo, modos, arvore de cena, inspector e pipeline explicito.
 
-## Decisão técnica
+## Decisao tecnica
 
-O Studio começa como app Vite/TypeScript em `apps/coconut-studio`. Ele pode rodar no navegador durante desenvolvimento e também possui shell Tauri v2 para desktop local.
+O Studio e um app React + Vite + TypeScript em `apps/coconut-studio`. Roda no navegador durante o desenvolvimento e possui shell Tauri v2 para desktop local.
 
 ```txt
-TypeScript + Vite
-  -> DOM/CSS para painéis, formulários e inspector
-  -> Canvas para recorte visual, overlays e preview
-  -> Tauri/Rust para filesystem, permissões e tarefas locais
-  -> coconut-vision para detecção e crop de produção
+React + Vite + TypeScript
+  -> src/engine: logica framework-agnostic (deteccao, render, paytable, export)
+  -> src/state: hooks React que envolvem o engine
+  -> src/editor + src/screens: a UI (launcher, dialogos, modos, docks)
+  -> Tauri/Rust: filesystem, criacao de projetos e Coconut Vision
 ```
 
-Tauri foi escolhido porque usa Rust no backend e WebView do sistema operacional. No Windows usa WebView2; no Linux usa WebKitGTK; no macOS usa WKWebView. Isso é mais leve que Electron, mas exige testes reais por sistema operacional.
+Tauri usa Rust no backend e o WebView do sistema operacional: WebView2 no Windows, WebKitGTK no Linux, WKWebView no macOS. Mais leve que Electron, mas exige testes reais por sistema operacional.
 
-## Primeira versão
+## Layout de pastas
 
-A primeira versão oferece:
+```txt
+src/main.tsx            entry -> ThemeProvider -> App
+src/engine/             logica reutilizada, sem dependencia de React
+src/state/              hooks React sobre o engine
+src/platform/           descoberta e criacao de projetos (Tauri/web)
+src/theme/              temas, acento, tipografia, densidade
+src/icons/              Icon.tsx
+src/components/         primitivos de UI (Mascot, Logo, SymbolTile, Dialog, ...)
+src/screens/            Launcher, NewProjectDialog, Settings
+src/editor/             shell do editor, docks e modos
+src-tauri/src/main.rs   comandos Rust expostos ao frontend
+```
 
-- importação local de imagem raster;
-- criação de nova sessão de projeto;
-- escolha de tipo de projeto: slot, bingo, pachinko ou livre;
-- suporte de interface em português, inglês e espanhol;
-- ajuste de grid de spritesheet com largura/altura manual de célula;
-- seleção e preview de frames;
-- redimensionamento manual de frames detectados por 8 handles;
-- remoção manual de frames detectados como falsos positivos;
-- configuração inicial de layout de slot: rolos, linhas, célula, gaps e resoluções desktop/mobile;
-- editor inicial de paytable demo com apostas por linha, regras, payouts por símbolo e paylines;
-- preview JSON de `Export plan`, `Slot draft`, `game.config`, `theme.config` e `paytable.config`;
-- detecção de cor de fundo por amostragem dos cantos;
-- auto-detect de figuras por diferença de cor e componentes conectados;
-- simulação visual de fundo claro;
-- exportação de plano JSON;
-- base Tauri/Rust mínima para evoluir comandos locais.
+### src/engine (logica framework-agnostic)
+
+Reaproveita o nucleo da versao anterior, sem React:
+
+- `imageDetection.ts`: heuristica leve de deteccao no browser.
+- `coconutVision.ts`: ponte para o backend Rust via Tauri.
+- `canvasRenderer.ts`: desenho de imagem, overlays e preview.
+- `frameMath.ts`: grids, bounding boxes, selecao e posicionamento.
+- `frameEditing.ts`: edicao/redimensionamento de frames.
+- `paytable.ts`: regras, payouts e paylines.
+- `slotLayout.ts`: dimensoes e layout do slot.
+- `symbolManager.ts`: gerencia simbolos.
+- `slotProjectDraft.ts`: monta o `SlotProjectDraft` e valida.
+- `slotConfigExport.ts`: deriva `game.config`, `theme.config` e `paytable.config`.
+- `exportPlan.ts`: monta o plano de exportacao JSON.
+- `types.ts` e `studioConstants.ts`: tipos e constantes compartilhados.
+
+### src/state (hooks React)
+
+- `useStudioProject`: mantem um `StudioState` mutavel e expoe `mutate`, `loadImage`, `detect` e `paintCell`.
+- `useRecentProjects`: projetos recentes.
+- `detection.ts`: integra a deteccao ao estado.
+- `createStudioState.ts`: constroi o estado inicial a partir de um `ProjectSeed`.
+
+### src/platform
+
+`projects.ts` faz a descoberta e criacao de projetos. No Tauri desktop, chama os comandos Rust `list_projects` e `create_project`, que leem e criam `games/<id>/`. Na web, usa recentes em `localStorage` mais um exemplo embarcado.
+
+### src/theme
+
+Quatro temas (Coco Cream/Night, Gruvbox claro/escuro) mais cor de acento, tipografia e densidade, persistidos em `localStorage`.
+
+### src/editor
+
+A casca do editor e seus modos:
+
+- `Editor`: shell, com `Toolbar` e `StatusBar`.
+- `docks/`: `ResourceTree` (Arvore de Cena), `Inspector` (contextual) e `BottomPanel` (abas Simbolos/Saida/Erros/JSON).
+- `modes/`: `ReelsMode`, `AssetsMode`, `PaytableMode`, `PreviewMode`.
+
+A interface do editor e em pt-BR. O idioma base do projeto (pt/en/es) e uma propriedade do projeto, escolhida em Novo Projeto ou no Inspector, e nao a lingua da interface.
+
+## Backend Rust
+
+`apps/coconut-studio/src-tauri/src/main.rs` expoe os comandos:
+
+- `studio_version`
+- `detect_symbols` (Coconut Vision)
+- `list_projects`
+- `create_project`
+
+## Deteccao de figuras
+
+O Studio tem dois backends:
+
+- `Detector leve`: heuristica TypeScript no browser (`imageDetection.ts`). Rapido, bom para previa e revisao, mas exige revisao visual.
+- `Coconut Vision`: crate Rust compartilhada com o CLI, chamada via Tauri (`coconutVision.ts`). Caminho preferido para producao por ser reproduzivel. Disponivel apenas no app desktop Tauri; no navegador ha fallback para o detector leve.
 
 ## Fluxo esperado
 
-O guia operacional completo fica em `docs/18-guia-coconut-studio.md`.
-As dependências de sistema ficam em `docs/19-ambiente-e-dependencias.md`.
+O guia operacional completo fica em `docs/18-guia-coconut-studio.md` e os how-tos focados em `docs/studio/`.
 
 ```bash
-pnpm dev:studio
+pnpm dev:studio        # web em http://localhost:5174
+pnpm studio:tauri dev  # desktop com Coconut Vision e criacao de projeto
+pnpm build:studio      # build web do Studio
 ```
 
-Abre `http://localhost:5174`.
+## Documentacao relacionada
 
-Via Docker:
-
-```bash
-docker compose up studio
-```
-
-Abre `http://localhost:3002`.
-
-Para desktop local:
-
-```bash
-pnpm studio:tauri dev
-```
-
-No Linux, instalar os pré-requisitos do Tauri, incluindo WebKitGTK.
-
-## Arquitetura de UI
-
-- Toolbar superior com ações globais, seletor de idioma e workspaces.
-- Browser/inspector de projeto à esquerda, incluindo template de jogo.
-- Canvas central para imagem, linhas de recorte e preview visual.
-- Inspector à direita com frame selecionado, preview, remoção e próximos passos.
-- Status bar inferior para feedback curto.
-
-O canvas é usado para interação visual. DOM/CSS continuam responsáveis por controles, inputs e navegação para manter acessibilidade e performance.
-
-O código do Studio é dividido por responsabilidade para evitar arquivos colossais:
-
-- `main.ts`: orquestra estado, eventos e chamadas de alto nível.
-- `studioTemplate.ts`: mantém o HTML estático da interface.
-- `i18n.ts`: mantém textos traduzíveis em português, inglês e espanhol.
-- `projectControls.ts`: controla nova sessão, idioma e tipo de projeto.
-- `dom.ts`: centraliza helpers de DOM e criação de contexto 2D.
-- `frameMath.ts`: calcula grids, bounding boxes, seleção e posicionamento no canvas.
-- `frameEditing.ts` e `frameEditingController.ts`: controlam handles de resize e pointer capture.
-- `detectedFrameActions.ts`: reúne ações sobre frames detectados, como remoção.
-- `slotLayout.ts` e `slotLayoutControls.ts`: mantêm dimensões e resolução do slot.
-- `paytable.ts` e `paytableControls.ts`: mantêm regras, payouts e paylines editáveis.
-- `slotProjectDraft.ts` e `slotConfigExport.ts`: derivam drafts e configs finais para preview JSON.
-- `jsonPreviewController.ts`: atualiza e copia o JSON exibido no inspector.
-- `imageDetection.ts`: executa a heurística leve de máscara e componentes conectados.
-- `coconutVision.ts`: chama o backend Rust quando o Studio roda no Tauri.
-- `canvasRenderer.ts`: desenha imagem, overlays, checkerboard e preview.
-- `exportPlan.ts`: monta o plano JSON para integração com o pipeline.
-
-## Detecção inteligente
-
-O Studio usa uma heurística leve no browser:
-
-```txt
-imagem -> canvas de análise -> amostra de fundo -> máscara foreground -> componentes conectados -> bounding boxes
-```
-
-Essa abordagem é adequada para spritesheets com fundo relativamente uniforme, como a screenshot analisada na raiz do projeto. Ela permite encontrar figuras que não se encaixam perfeitamente em uma grade fixa, ou casos em que uma célula contém mais de um símbolo.
-
-O caminho de produção é o `coconut-vision`, uma crate Rust compartilhada entre Tauri e CLI. O detector TypeScript permanece como preview rápido no browser; o `coconut-vision` gera resultado reprodutível, testável e adequado para crop final em alta resolução.
-
-Controles atuais:
-
-- `Tolerancia`: distância de cor mínima para separar figura do fundo.
-- `Area minima`: remove ruídos pequenos.
-- `Detectar fundo`: amostra cantos e bordas da imagem.
-- `Auto figuras`: detecta regiões conectadas diferentes do fundo.
-- `Remover frame`: elimina falsos positivos depois da detecção.
-- `Largura` e `Altura`: permitem dimensionar manualmente a célula do grid quando a divisão automática não encaixa.
-- `Leve`: usa heurística própria com `getImageData` e componentes conectados.
-- `coconut-vision`: backend Rust via Tauri para detecção de produção, com fallback para a heurística TypeScript quando indisponível.
-
-Limites:
-
-- fundo com gradiente forte pode exigir tolerância maior;
-- sombras muito parecidas com o fundo podem ser cortadas;
-- figuras encostadas podem exigir revisão manual mesmo com split/trim de overlap;
-- remoção de fundo fina ainda deve ficar no pipeline `sharp`, WASM ou Rust.
-
-## Evolução técnica
-
-Para avançar além da heurística leve:
-
-- `coconut-vision` como crate Rust compartilhada por Tauri e CLI;
-- Marching Squares para gerar contornos editáveis;
-- Web Worker ou OffscreenCanvas para não bloquear a UI;
-- Rust/WASM apenas como evolução futura caso o Studio web precise do mesmo núcleo sem Tauri;
-- Tauri commands para rodar o pipeline local com `sharp`, `oxipng`, `ravif` e validações de assets.
-
-## Próximos passos
-
-- Evoluir o Studio para preview visual da grade do slot e integração runtime conforme `docs/20-sdd-montagem-slots-paytable-runtime.md`.
-- Conectar o Studio ao `@iluvcoconut/asset-pipeline` via comandos Tauri.
-- Integrar o Studio ao `coconut-vision` via Tauri command.
-- Usar `pnpm ilc raw:detect-symbols` para crop final por arquivo quando o resultado revisado estiver pronto para produção.
-- Permitir escolher pasta de jogo local.
-- Escrever planos de recorte e manifests com escrita atômica.
-- Adicionar ferramenta de linhas/polígonos para recorte manual.
-- Persistir sessões de projeto e presets por tipo de jogo.
-- Expandir edição manual para polígonos/contornos quando bounding boxes retangulares não forem suficientes.
-- Integrar preview real com `apps/player-pixi`.
-- Fazer o player Pixi carregar `games/<game-id>` e fixtures por query string.
+- Guia operacional: `docs/18-guia-coconut-studio.md`.
+- How-tos: `docs/studio/README.md`.
+- Montagem de slots, paytable e runtime: `docs/20-sdd-montagem-slots-paytable-runtime.md`.
+- SDD de deteccao: `docs/16-sdd-deteccao-figuras-coconut-studio.md` e `docs/17-sdd-coconut-vision.md`.
+- Ambiente e dependencias: `docs/19-ambiente-e-dependencias.md`.
 
 ## Riscos
 
-- `@iluvcoconut/asset-pipeline` usa filesystem e `sharp`, então não deve ir para bundle browser.
-- `coconut-vision` deve permanecer fora do bundle web; o browser usa preview TypeScript e o desktop usa Tauri/Rust.
-- WebView varia por sistema operacional; testar Linux/Windows/macOS.
+- `@iluvcoconut/asset-pipeline` usa filesystem e `sharp`, entao nao deve ir para o bundle browser.
+- `coconut-vision` deve permanecer fora do bundle web; o browser usa o detector leve e o desktop usa Tauri/Rust.
+- O WebView varia por sistema operacional; testar Linux/Windows/macOS.
 - Ferramentas de recorte manual precisam preservar coordenadas em pixels reais da imagem.
-- Remoção de fundo complexa deve ficar em pipeline especializado, não em heurística visual frágil.

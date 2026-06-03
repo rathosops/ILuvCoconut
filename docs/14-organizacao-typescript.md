@@ -22,18 +22,20 @@ Links completos estão em `docs/09-links-de-referencia.md`.
 
 Esses limites são aplicados como warnings no ESLint. Como `lint:ci` roda com `--max-warnings=0`, qualquer warning bloqueia CI.
 
+A regra `no-magic-numbers` vale para a lógica (`**/*.ts`: engine, hooks, plataforma). Na camada de view React (`**/*.tsx`) ela fica desligada, porque tamanhos de ícone e espaçamentos em markup não são "mágicos"; toda dimensão fixa de layout vai para `styles.css` e tokens de tema, não para objetos de estilo inline.
+
 ## Como quebrar sem perder organização
 
 Quebre primeiro por responsabilidade concreta:
 
 - `types.ts`: contratos e tipos compartilhados.
 - `*Constants.ts`: limites, dimensões, thresholds e valores de domínio.
-- `dom.ts`: helpers de DOM, eventos e contexto de canvas.
+- `canvasContext.ts`: criação e acesso ao contexto 2D de canvas.
 - `frameMath.ts`: cálculo de coordenadas, grids e seleção.
 - `imageDetection.ts`: algoritmos de análise de imagem.
 - `canvasRenderer.ts`: desenho e composição visual.
 - `exportPlan.ts`: montagem de payloads e comandos.
-- `main.ts`: inicialização, estado e ligação entre módulos.
+- `main.tsx`: ponto de entrada que monta a árvore React; estado e orquestração ficam em hooks de `src/state/`.
 
 Evite criar um `utils.ts` genérico quando o código tem domínio claro. Um módulo com nome de domínio facilita encontrar regra, testar isoladamente e substituir implementação depois.
 
@@ -49,4 +51,4 @@ Extraia código quando uma destas condições aparecer:
 
 ## Aplicação atual
 
-O Coconut Studio foi dividido em módulos dedicados. O `main.ts` passou a coordenar eventos e estado, enquanto detecção de imagem, matemática de frames, renderização em canvas, template e exportação ficam em arquivos próprios.
+O Coconut Studio (React + Vite) separa lógica de view. A lógica pura — detecção de imagem, matemática de frames, renderização em canvas, paytable, layout, draft e exportação — fica em `src/engine/` (sem dependência de React) e é reaproveitada por hooks em `src/state/`. Componentes ficam em `src/components`, `src/screens` e `src/editor` (docks e modos), cada arquivo pequeno e de responsabilidade única. Detalhes de arquitetura em `docs/13-coconut-studio.md`.

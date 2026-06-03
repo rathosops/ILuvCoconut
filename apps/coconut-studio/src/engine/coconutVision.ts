@@ -1,4 +1,4 @@
-import { getCanvasContext } from './dom';
+import { getCanvasContext } from './canvasContext';
 import {
   COMPONENT_PADDING_BASE,
   COMPONENT_PADDING_MIN,
