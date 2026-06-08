@@ -13,12 +13,12 @@
     "@iluvcoconut/contracts": "workspace:*",
     "@tauri-apps/api": "^2.11.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.11.2",
     "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint-plugin-react-hooks": "^5.1.0",
     "typescript": "^5.9.0",
